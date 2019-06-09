@@ -7,6 +7,45 @@ import sys
 def is_anagram(s):
     return len(s) % 2 == 0 and sorted(s[:len(s)//2]) == sorted(s[len(s)//2:])
 
+def entropy(hist, n):
+    h = 0
+    for c in hist:
+        pc = hist[c]/n
+        h += pc*math.log(1/pc, 2)
+    return h
+
+def high_entropy_suffix(s, t):
+    """Return the length of the shortest suffix of s whose entropy exceeds t or return -1 if no such suffix exists"""
+    hist = collections.defaultdict(int)
+    for i in range(len(s)-1, -1, -1):
+        hist[s[i]] += 1
+        if entropy(hist, len(s)-i) >= t: return len(s)-i
+    return -1
+
+def equal_histograms(hist0, hist1):
+    for c in hist0:
+        if hist0[c] != hist1[c]: return False
+    for c in hist1:
+        if hist0[c] != hist1[c]: return False
+    return True
+
+def anagram_suffix(s):
+    """Return half the length of the shortest suffix of s that is an anagram or -1 if no such suffix exists"""
+    if len(s) < 2: return -1
+    hist0 = collections.defaultdict(int)
+    hist1 = collections.defaultdict(int)
+    hist0[s[len(s)-2]] = 1
+    hist1[s[len(s)-1]] = 1
+    # print(hist0.items(), hist1.items())
+    if equal_histograms(hist0, hist1): return 1
+    for t in range(2, len(s)//2):
+        hist0[s[len(s)-2*t-1]] += 1
+        hist0[s[len(s)-2*t]] += 1
+        hist0[s[len(s)-t-1]] -= 1
+        hist1[s[len(s)-t-1]] += 1
+        if equal_histograms(hist0, hist1): return t
+    return -1
+
 def empirical_entropy(s):
     d = collections.defaultdict(int)
     for c in s:
@@ -25,28 +64,26 @@ if __name__ == "__main__":
 
     alphabet = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"[:c]
     s = ""
-    rejections = 0
+    erejections = 0
+    arejections = 0
     iterations = 0
     while 1 < 2:
         s += random.choice(alphabet)
         iterations += 1
-        for t in range(len(s)):
-            if t > c//2 and is_anagram(s[len(s)-1-t:]):
-                s = s[:len(s)-t//2]
-                break
-            if empirical_entropy(s[len(s)-1-t:]) > hmax:
-                # s = s[:len(s)-1-3*t//4]
-                s = s[:len(s)-1]
-                rejections += 1
-                break
+        if high_entropy_suffix(s, hmax) >= 0:
+            s = s[:len(s)-1]
+            erejections += 1
+        t = anagram_suffix(s)
+        if t > 0:
+            s = s[:len(s)-t]
+            arejections += 1
 
-        # print("\r", empirical_entropy(s), len(s), end='')
-        # print("\r{:10} {:10} {}".format(len(s), rejections, empirical_entropy(s)), end='')
+        # sanity check
+        if len(s) < 10000 and iterations % 1000 == 0:
+            for i in range(len(s)):
+                if is_anagram(s[i:]):
+                    print("Fatal error, string contains anagram")
+                    sys.exit(-1)
 
         # This produces gnuplot output
-        print("{:10} {:10} {:10} {}".format(iterations, len(s), rejections,
-        empirical_entropy(s)))
-
-        # if len(s) == 1000: print(s)
-        # if len(s) % 1000 == 1:
-        #     print("\n", s)
+        print("{:10} {:10} {:10} {:10} {}".format(iterations, len(s), erejections, arejections, empirical_entropy(s)))
