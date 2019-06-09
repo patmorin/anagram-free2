@@ -57,12 +57,16 @@ def empirical_entropy(s):
     return h
 
 if __name__ == "__main__":
+    alphabet = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     c = 50
     if len(sys.argv) == 2:
         c = int(sys.argv[1])
-    hmax = math.log(c, 2) - 1
+        if c > len(alphabet):
+            print("Error: max alphabet size is {}".format(len(alphabet)))
+            sys.exit(-1)
+    alphabet = alphabet[:c]
 
-    alphabet = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"[:c]
+    hmax = math.log(c, 2) - 1
     s = ""
     erejections = 0
     arejections = 0
@@ -83,7 +87,7 @@ if __name__ == "__main__":
             for i in range(len(s)):
                 if is_anagram(s[i:]):
                     print("Fatal error, string contains anagram")
-                    sys.exit(-1)
+                    sys.exit(-2)
 
         # This produces gnuplot output
         print("{:10} {:10} {:10} {:10} {}".format(iterations, len(s), erejections, arejections, empirical_entropy(s)))
