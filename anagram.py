@@ -57,6 +57,20 @@ def empirical_entropy(s):
         h += pc*math.log(1/pc, 2)
     return h
 
+def string_histogram(s):
+    hist = collections.defaultdict(int)
+    for l in s:
+        hist[l] += 1
+    return hist
+
+def show_histogram(fp, hist):
+    n = sum(hist.values())
+    for l in sorted(list(hist)):
+        p = hist[l]*100/n
+        fp.write("{}: {:2.1f}% {}\n".format(l, p, "*" * int(p)))
+    fp.write("Empirical entropy: {:1.4f}\n".format(entropy(hist, n)))
+
+
 if __name__ == "__main__":
     alphabet = "abcedefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     c = 50
@@ -71,43 +85,46 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         amax = int(sys.argv[2])
 
-    sanity_check = False
+    print("Alphabet size {}, maximum anagram length {}".format(c, amax))
 
-    hmax = math.log(c, 2) - 1
+    random.seed() # Use current time as random seed, otherwise deterministic
     s = ""
     erejections = 0
     arejections = 0
     iterations = 0
+    rejection_hist = collections.defaultdict(int)
     while 1 < 2:
         s += random.choice(alphabet)
         iterations += 1
-        # if high_entropy_suffix(s, hmax) >= 0:
-        #     s = s[:len(s)-1]
-        #     erejections += 1
-        # else:
         t = anagram_suffix(s, amax)
         if t > 0:
             s = s[:len(s)-t]
             arejections += t
-        elif len(s) % 1000 == 0:
-            filename = "long-string-{}-{}.txt".format(c, amax)
+            rejection_hist[t] += 1
+
+        if random.random() < .001:
+            filename = "s-{}-{}.txt".format(c, amax)
             with open(filename, 'w') as fp:
                 fp.write(s)
-        # # output long strings
-        # if iterations % 10000 == 0:
-        #     filename = ""
-        #     with("")
+            filename = "af-{}-{}.stats".format(c, amax)
+            with open(filename, 'w') as fp:
+                fp.write("iterations: {}\n".format(iterations))
+                fp.write("string length: {} ({:2.1f}%)\n".format(len(s), len(s)*100/iterations))
+                fp.write("deletions: {} ({:2.1f}%)\n".format(arejections, arejections*100/iterations))
+                fp.write("Histogram of full string\n")
+                show_histogram(fp, string_histogram(s))
+                if len(s) >= 100*c:
+                    fp.write("Histogram of middle string\n")
+                    ss = s[len(s)//2-50*c:len(s)//2+50*c]
+                    show_histogram(fp, string_histogram(ss))
+                total_rejections = sum([a*b for (a,b) in rejection_hist.items()])
+                fp.write("Total deletions: {}\n".format(total_rejections))
+                fp.write("Longest deletion: {}\n".format(max(rejection_hist.keys())))
+                fp.write("Average deletion: {}\n".format(total_rejections/iterations))
+                fp.write("Average non-empty deletion: {}\n".format(total_rejections/sum(rejection_hist.values())))
+                fp.write("Deletion histogram\n")
+                show_histogram(fp, rejection_hist)
 
-        # sanity check
-        if sanity_check and len(s) < 500 and iterations % 100 == 0:
-            for i in range(len(s)-1):
-                for j in range(i+1, len(s)):
-                    if empirical_entropy(s[i:j]) > hmax:
-                        print("Fatal error, string has high entropy substring")
-                        sys.exit(-3)
-                    if 2*amax < j-i and is_anagram(s[i:j]):
-                        print("Fatal error, string contains anagram: {}".format(s[i:j]))
-                        sys.exit(-2)
 
         # This produces gnuplot output
         print("{:10} {:10} {:10} {:10} {}".format(iterations, len(s), erejections, arejections, empirical_entropy(s)))
