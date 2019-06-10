@@ -71,6 +71,8 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         amax = int(sys.argv[2])
 
+    sanity_check = False
+
     hmax = math.log(c, 2) - 1
     s = ""
     erejections = 0
@@ -82,18 +84,22 @@ if __name__ == "__main__":
         if high_entropy_suffix(s, hmax) >= 0:
             s = s[:len(s)-1]
             erejections += 1
-        t = anagram_suffix(s, amax)
-        if t > 0:
-            s = s[:len(s)-t]
-            arejections += t
-
+        else:
+            t = anagram_suffix(s, amax)
+            if t > 0:
+                s = s[:len(s)-t]
+                arejections += t
+            elif len(s) % 1000 == 0:
+                filename = "long-string-{}-{}.txt".format(c, amax)
+                with open(filename, 'w') as fp:
+                    fp.write(s)
         # # output long strings
         # if iterations % 10000 == 0:
         #     filename = ""
         #     with("")
 
         # sanity check
-        if len(s) < 500 and iterations % 100 == 0:
+        if sanity_check and len(s) < 500 and iterations % 100 == 0:
             for i in range(len(s)-1):
                 for j in range(i+1, len(s)):
                     if empirical_entropy(s[i:j]) > hmax:
