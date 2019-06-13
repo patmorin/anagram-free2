@@ -44,4 +44,4 @@ if __name__ == "__main__":
     c = int(sys.argv[1])
     for n in range(1, 30):
         count = countem(c, n)
-        print(n, count, count**(1/n), log2(count)/n, log2(c)-log2(count)/n)
+        print(n, count, count**(1/n), log2(count)/n, n*log2(c)-log2(count), (n+1)*log2(c)-log2(count*c))

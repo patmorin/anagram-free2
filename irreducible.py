@@ -34,11 +34,12 @@ if __name__ == "__main__":
         # print(n, log2(a[n])/n)
 
     c = int(sys.argv[1])
-    weights = [log2(c)*n-log2(irreducible(n)) for n in range(1, c+1)]
+    weights = [log2(c)*n-log2(irreducible(n)) for n in range(1, 2*c+1)]
     krafts = [1/2**w for w in weights]
     print(weights)
     print(krafts)
     print("kraft sum = ", sum(krafts))
     print("free kraft = ", 1-sum(krafts))
+    print("code 1 size <", log2(1/(1-sum(krafts))))
 
     # print("free kraft - 1/2**(4/5) = ", 1-sum(krafts)-1/2**(4/5))
