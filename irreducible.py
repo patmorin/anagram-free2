@@ -1,5 +1,5 @@
 import sys
-from math import log2
+from math import log2, sqrt
 
 
 fac_tab = {0:1, 1:1}
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         # print(n, log2(a[n])/n)
 
     c = int(sys.argv[1])
-    weights = [log2((c-1)/c)] + [log2(c)*n-log2(irreducible(n)) for n in range(1, c+1)]
+    weights = [log2(c)*n-log2(irreducible(n)) for n in range(1, c+1)]
     krafts = [1/2**w for w in weights]
     print(weights)
     print(krafts)

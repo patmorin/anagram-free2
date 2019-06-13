@@ -1,6 +1,7 @@
 import sys
 import collections
 import math
+from math import log2
 
 def equal_histograms(hist0, hist1):
     for c in hist0:
@@ -36,11 +37,11 @@ def countem(c, n):
             s.pop(-1)
         if len(s) > 0:
             s[-1] = s[-1] + 1
-    return count
+    return c*count
 
 
 if __name__ == "__main__":
     c = int(sys.argv[1])
     for n in range(1, 30):
         count = countem(c, n)
-        print(n, count, count**(1/n))
+        print(n, count, count**(1/n), log2(count)/n, log2(c)-log2(count)/n)

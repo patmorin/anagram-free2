@@ -50,13 +50,51 @@
 
 A string $s=s_1,\ldots,s_{2\ell}$ is called an \emph{anagram} if
 $s_1,\ldots,s_\ell$ is a permutation of $s_{\ell+1},\ldots,s_{2\ell}$.
-For a graph $G$, a $c$-colouring $\varphi:V(G)\to\{1,\ldots,c\}$ is
-\emph{anagram-free} if, for every odd-length path $v_1,v_2,\ldots,v_{2\ell}$
-in $G$, the string $\varphi(v_1),\ldots,\varphi(v_{2\ell})$ is not an
-anagram.  The \emph{anagram-free chromatic number} of $G$, denoted
-$\pi_\alpha(G)$, is the smallest value of $c$ for which $G$ has an
-anagram-free $c$-colouring.
 
+% For a graph $G$, a $c$-colouring $\varphi:V(G)\to\{1,\ldots,c\}$ is
+% \emph{anagram-free} if, for every odd-length path $v_1,v_2,\ldots,v_{2\ell}$
+% in $G$, the string $\varphi(v_1),\ldots,\varphi(v_{2\ell})$ is not an
+% anagram.  The \emph{anagram-free chromatic number} of $G$, denoted
+% $\pi_\alpha(G)$, is the smallest value of $c$ for which $G$ has an
+% anagram-free $c$-colouring.
+
+\section{Stuff}
+
+A permutation $\pi$ of $\{1,\ldots,m\}$ is \emph{reducible} if there exists an integer $j\in\{1,\ldots,m-1\}$ such that
+\[
+   \{ \pi(1),\pi(2),\ldots,\pi(j) \} = \{1,\ldots,j\} \enspace .
+\]
+A permutation is \emph{irreducible} if it not reducible.  For each $i\in\N$, let $a_i$ denote the number of irreducible permutations of $\{1,\ldots,i\}$. The sequence $\langle a_i:i\in\N\rangle$ is Sequence A003319 in the On-Line Encyclopedia of Integer Sequences.  
+
+We say that a string $s_1,\ldots,s_{2\ell}\in\Sigma^{2\ell}$ is a \emph{trigger} if it is an anagram and $s_1,\ldots,s_{2\ell-1}$ is anagram-free.  Let 
+\[  
+   b_\ell = \max_{s_1,\ldots,s_{\ell}\in\Sigma^\ell} |\{ s_{\ell+1},\ldots,s_{2\ell}\in\Sigma^\ell: \mbox{$s_1,\ldots,s_{2\ell}$ is a trigger}\}| \le a_\ell \enspace . 
+\] 
+
+\begin{lem}
+  $b_\ell \le a_\ell$.
+\end{lem}
+
+\begin{proof}
+  First consider the case where $s_1,\ldots,s_\ell$ contains no duplicates (so $\ell\le|\Sigma|$).  Without loss of generality, assume $s_1,\ldots,s_\ell=\ell,\ell-1,\ldots,1$.  Then, if $s_1,\ldots,s_{2\ell}$ is an anagram, then $s_{\ell+1},\ldots,s_{2\ell}$ is a permutation of $1,\ldots,\ell$.  Furthermore, if $s_1,\ldots,s_{2\ell-1}$ is anagram-free, then there is no $j\in\{1,\ldots,\ell-1\}$ such that $\{s_1,\ldots,s_j\}=\{1,\ldots,j\}$.  Therefore $s_1,\ldots,s_{2\ell}$ is a trigger if and only if $s_{\ell+1},\ldots,s_{2\ell}$ is irreducible.
+  
+  To handle the case where $s_1,\ldots,s_\ell$ contains duplicates consider the operator $\phi:\Sigma^{\ell}\to \{1,\ldots,\ell\}\times\Sigma$
+  where $\phi(s_1,\ldots,s_\ell)=s_1',\ldots,s_{\ell}'$ is obtained   
+  by replacing, for each $x\in\Sigma$ and each $i\in\N$, the $i$th occurrence of $x$ in $s_1,\ldots,s_\ell$ with the pair $(i,x)$.  
+  Now $s_1',\ldots,s_\ell'$ is a sequence of unique tuples on which we may apply the argument to the preceding paragraph.   Finally, for any $s_{\ell+1},\ldots,s_{2\ell}$ such that $s_1,\ldots,s_\ell$ is a trigger, $s_1',\ldots,s_{2\ell}'= s_1',\ldots,s_{\ell}'\cdot \phi(s_{\ell+1},\ldots,s_{2\ell})$ is also a trigger.
+\end{proof}
+
+The preceding lemma works well for $\ell \le |\Sigma|$, but we need something stronger when $\ell > |\Sigma|$.  I hope something like this is true:
+
+\begin{lem}
+  $b_\ell \le (|\Sigma|-1)b_{\ell-1}$
+\end{lem}
+
+
+
+
+
+\end{document}
 
 \section{Entropy Compression}
 
