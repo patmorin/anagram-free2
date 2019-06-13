@@ -44,6 +44,15 @@ def countem_r(s, a):
 def countem(c, n):
     return countem_r(list(range(n)), list(range(n)))
 
+def factorial(n):
+    f = 1
+    for i in range(1, n+1):
+        f *= i
+    return f
+
+def irreducible(n):
+    factorial(n) - sum([factorial(k)*])
+
 
 if __name__ == "__main__":
     c = int(sys.argv[1])
