@@ -60,43 +60,44 @@
 
 \section{The Strategy}
 
-We will consider strings (i.e., sequences) over an alphabet $\Sigma$ of size $c$.  For a string $s\in\Sigma^*$, $|s|$ denotes the length of $s$ and the individual elements of $s$ are indexed by positive integers, so $s=s_1,\ldots,s_{|s|}$
+We consider strings (i.e., sequences) over an alphabet $\Sigma$ of size $c$.  For a string $s\in\Sigma^*$, $|s|$ denotes the length of $s$ and the individual elements of $s$ are indexed by positive integers, so $s=s_1,\ldots,s_{|s|}$
 
-A string $s_1,\ldots,s_{2t}$ is an anagram if $s_1,\ldots,s_t$ is a permutation of $s_{t+1},\ldots,s_{2t}$.  For each $t\in\N$, let $a_n$ be the number of strings in $|\Sigma|^n$ that are anagram-free.  
+A string $s_1,\ldots,s_{2t}$ is an anagram if $s_1,\ldots,s_t$ is a permutation of $s_{t+1},\ldots,s_{2t}$.  A string $s_1,\ldots,s_{2t}$ is a \emph{trigger} if $s_1,\ldots,s_{2t-1}$ is anagram-free, but $s_1,\ldots,s_{2t}$ is an anagram.    An odd-length string $s_1,\ldots,s_{2t-1}$ is a \emph{near-trigger} if there exists some $x\in\Sigma$ such that $s_1,\ldots,s_{2t-1},x$ is a trigger. Note that a near-trigger if a very special kind of anagram-free string and that for any near trigger there is exactly one $x\in\Sigma$ that completes it to a trigger.
 
-A string $s_1,\ldots,s_{2t}$ is a \emph{trigger} if $s_1,\ldots,s_{2t-1}$ is anagram-free, but $s_1,\ldots,s_{2t}$ is an anagram.  For each $s\in\Sigma^*$, let $f(s)$ denote the number of ways of completing $s$ to a trigger of length $2|s|$.  That is, $f(s)$ is the number of triggers of length $2|s|$ whose first half is $s$.  For each $t\in\N$, let $f_t = \max\{f(s):s\in\Sigma^t\}$.
+For each $t\in\N$, let $a_t$ denote the number of triggers in $\Sigma^{2t}$.
+For each $s\in\Sigma^*$, let $f(s)$ denote the number of ways of completing $s$ to a trigger of length $2|s|$.  That is, $f(s)$ is the number of triggers of length $2|s|$ whose first half is $s$.  For each $t\in\N$, let $f_t = \max\{f(s):s\in\Sigma^t\}$.
 
 Let $w_0,w_1,w_2,\ldots$ be a sequence of positive reals that satisfy \emph{Kraft's Inequality}: $\sum_{i=0}^\infty 2^{-w_i} \le 1$.  Even though the $w_i$ are not integers, we can imagine them as codeword lengths for an encoding of the non-negative integers.  That is, we imagine that we can encode the integer $i$ using $w_i$ bits.
 
-We consider the following process that begins with the empty string $s^{(0)}$.  At the beginning of step $i$ we have a string, $s^{(i-1)}=s_1,\ldots,s_{n-1}$ is that is anagram-free and we choose a uniformly random value $c_i:=s_n$ in $\Sigma$. There are two cases to consider:
+We consider the following process that begins with the empty string $s^{(0)}$.  At the beginning of step $i$ we have an anagram-free string, $s^{(i-1)}=s_1,\ldots,s_{n-1}$, and we choose a uniformly random value $c_i:=s_n$ in $\Sigma$. There are two cases to consider:
 
 \begin{enumerate}
   \item $s_1,\ldots,s_n$ is anagram-free:  In this case $s^{(i)}=s_1,\ldots,s_n$.  We log this information using $w_0$ bits.
   
   \item $s_1,\ldots,s_n$ is not anagram-free.  In this case, there exists some minimum value $t\in\N$ such that $s_{n-2t+1},\ldots,s_n$ is an anagram.   Notice that this means that $s_{n-2t+1},\ldots,s_n$ is a trigger. There are now two options:
   \begin{enumerate}
-    \item Erase $s_{n-t+1},\ldots,s_n$, i.e., set $s^{(i)}=s_1,\ldots,s_{n-t}$.  In this case, we log enough information to recover these values given $s_{n-2t+1},\ldots,s_{n-t}$.  The amount of information one needs to log in this case is $w_t + \log f_t$ since there are at most $f_t$ ways of completing $s_{n-2t+1},\ldots,s_{n-t}$ into a trigger.
+    \item Erase $s_{n-t+1},\ldots,s_n$, i.e., set $s^{(i)}=s_1,\ldots,s_{n-t}$.  In this case, we log enough information to recover $s_{n-t+1},\ldots,s_{n}$ given $s_{n-2t+1},\ldots,s_{n-t}$.  The amount of information we need to log in this case is $w_t + \log f_t$ since there are at most $f_t$ ways of completing $s_{n-2t+1},\ldots,s_{n-t}$ into a trigger.
 
-    \item Erase $s_{n-2t+1},\ldots,s_n$, i.e., set $s^{(i)}=s_{1},\ldots,s_{n-2t}$.  In this case we log enough information to recover the erased values $s_{n-2t+1},\ldots,s_n$.  The amount of information we need to log in this case is $w_t+ \log(a_{2t-1}) + \log c$ since $s_{n-2t+1},\ldots,s_{n-1}$ is anagram-free and there are at most $c$ choices for $s_n$.
+    \item Erase $s_{n-2t+1},\ldots,s_n$, i.e., set $s^{(i)}=s_{1},\ldots,s_{n-2t}$.  In this case we log enough information to recover the erased values $s_{n-2t+1},\ldots,s_n$.  The amount of information we need to log in this case is $w_t+ \log a_t$ since $s_{n-2t+1},\ldots,s_{n}$ is a trigger.
   \end{enumerate}
 \end{enumerate}
 Of course, whether we choose Option~(a) or Option~(b) above should be determined by whether or not
 \[
-       \log c + \log a_{2t-1} < \log f_t
+   \log a_t < \log f_t
 \]
 We will fix a specific value $t^*$ where we apply Option~(a) if $t>t^*$ and we apply Option~(b) otherwise.
 
 After running this process for $m$ steps, we have some string $s^{(m)}=s_1,\ldots,s_N$ whose length, $N$ is a random variable.  We log the entire contents of $s^{(m)}$ using $N\log c$ bits.  Observe that, by reading the log backwards, we can recover $c_1,\ldots,c_m$.  Therefore, the expected size of the log is at least $m\log c$ and, for any $r\in\N$ the probability that the log has size at most $m\log c-r$ is at most $2^{-r}$.
 
-For each $i\in\{1,\ldots,m\}$ let $t_i=0$ if Case~1 occurs above at Step~$i$ and let $t_i$ be the value $t$ in Case~2, otherwise.  Then, the size of the log is
+For each $i\in\{1,\ldots,m\}$ let $t_i=0$ if Case~1 occurs above at Step~$i$ and let $t_i$ be the value $t$ in Case~2, otherwise.  Then, the size, $M$, of the log is
 \begin{equation}
     M = m\log c + \sum_{i=1}^m
         \begin{cases}
            w_0 & \text{if $t_i=0$} \\
            w_{t_i} + \log f_{t_i} - t_i\log c & \text{if $t_i\in\{1,\ldots,t^*\}$} \\
-           w_{t_i} + \log c + \log a_{2t_i-1} - 2t_i\log c & \text{if $t_i>t^*$}          \end{cases} \eqlabel{logsize}
+           w_{t_i} + \log a_t - 2t_i\log c & \text{if $t_i>t^*$}          \end{cases} \eqlabel{logsize}
 \end{equation}
-To understand this formula, notice that $m\log c + mw_0$ is the size of the log if Case~2 never occurs: When this happens, the log consists of a sequence of $m$ $w_0$-bit codes followed the string $s^{(m)}=c_1,\ldots,c_m$ encoded using $m\log c$ bits.  Each time Case~2(a) occurs, an occurrence of the $w_0$-bit code is replaced with a $w_t$-bit code and $2t$ characters (that require $2t\log c$ bits to encode) are no longer included in $s^{(m)}$ because they can be deduced from a log entry of length $\log c + \log a_{2t-1}$.  Similarly,  a $w_0$-bit code is replaced with a $w_t$-bit code and $t$ characters are no longer included in $s^{(m)}$ because they can be deduced from a log entry of length $\log f_t$.  
+To understand this formula, notice that $m\log c + mw_0$ is the size of the log if Case~2 never occurs: When this happens, the log consists of a sequence of $m$ $w_0$-bit codes followed the string $s^{(m)}=c_1,\ldots,c_m$ encoded using $m\log c$ bits.  Each time Case~2(a) occurs, an occurrence of the $w_0$-bit code is replaced with a $w_t$-bit code and $2t$ characters (that require $2t\log c$ bits to encode) are no longer included in $s^{(m)}$ because they can be deduced from a log entry of length $\log a_{t}$.  Similarly, in Case~2(b) a $w_0$-bit code is replaced with a $w_t$-bit code and $t$ characters are no longer included in $s^{(m)}$ because they can be deduced from a log entry of length $\log f_t$.  
 
 \begin{clm}\clmlabel{whopper}
   There exists $c\in\N$, $t^*\in\N$, $\epsilon >0$ and reals $\langle w_i\rangle_{i=0}^\infty$ such that
@@ -105,17 +106,25 @@ To understand this formula, notice that $m\log c + mw_0$ is the size of the log 
     \item For every $t\in\{1,\ldots,t^*\}$,
     \[ w_t + \log f_{t} -t\log c \le -t(w_0+\epsilon) \]
     \item For every $t>t^*$, 
-    \[ w_t + \log c + \log a_{2t-1} -2t\log c \le - 2t(w_0+\epsilon) \]
+    \[ w_t + \log a_t -2t\log c \le - 2t(w_0+\epsilon) \]
   \end{enumerate}
 \end{clm}
 
 Before proving \clmref{whopper}, we show how it implies our main result.  Let $d_i=t_i$ if $t_i\le t^*$ and $d_i=2t_i$ if $t_i>t^*$.  (Think of $d_i$ as the number of characters we erase during Step~$i$.)  Observe that $N=|s^{(m)}|=m-\sum_{i=1}^m d_i$.  Therefore, if $N\le \alpha m$, then $\sum_{i=1}^m d_i > (1-\alpha)m$.  Now,
 \begin{align*}
-  M \le m\log c + \sum_{i=1}^m 
+  M & \le m\log c + \sum_{i=1}^m 
      \begin{cases}
          w_0 & \text{if $t_i=0$} \\
          -d_i(w_0+\epsilon) & \text{otherwise} 
-       \end{cases} \label{logsize}
+       \end{cases} \\
+     & \le m\log c + mw_0 - \left(\sum_{i=1}^m d_i\right)(w_0+\epsilon) \\ 
+     & \le m\log c + mw_0 - (1-\alpha)m(w_0+\epsilon) 
+     & \text{when $N\le\alpha m$} \\ 
+     & = m\log c - m(\epsilon - \alpha w_0 - \alpha\epsilon) \\ 
+     & \le m\log c - m(2\epsilon/3 - \alpha\epsilon) 
+     & \text{for $\alpha \le \epsilon/(3w_0)$} \\ 
+     & \le m\log c - m\epsilon/3 
+     & \text{for $\alpha \le 1/3$} \\ 
 \end{align*} 
 
 
