@@ -1,0 +1,173 @@
+\documentclass{patmorin}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,wrapfig}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{amsfonts}
+\usepackage{amsthm,mathtools}
+\usepackage{pat}
+\usepackage{paralist}
+\usepackage{stmaryrd}
+\usepackage[noend,]{algorithmic}
+% \usepackage{thm-restate}
+
+% \usepackage[longnamesfirst,numbers,sort&compress]{natbib}
+% \usepackage[noabbrev,capitalise]{cleveref}
+
+\usepackage{doi} % To make plainnat handle doi's properly 
+
+
+\usepackage[mathlines]{lineno}
+% \setlength{\linenumbersep}{2em}
+% \linenumbers
+% \rightlinenumbers
+% \linenumbers
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+ \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+ \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+ \renewenvironment{#1}%
+    {\linenomath\csname old#1\endcsname}%
+    {\csname oldend#1\endcsname\endlinenomath}}% 
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+ \patchAmsMathEnvironmentForLineno{#1}%
+ \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+\setlength{\parskip}{1ex}
+
+\newcommand{\floor}[1]{\lfloor #1\rfloor}
+
+\title{\MakeUppercase{Anagram-Free Sequences via Entropy Compression}}
+\author{The Armenian Gang}
+
+
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  We show that arbitrarily long anagram-free sequences (also known as strongly-non-repetitive sequences) over a small alphabet can be generated using a simple randomized algorithm.
+\end{abstract}
+
+\section{Introduction}
+
+A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no (consecutive) substring that is an anagram.  We say that a string is $\ge k$-anagram-free if it contains no substring of length at least $k$ that is an anagram.
+
+Consider the following algorithm for generating $\ge k$-anagram-free strings over an alphabet $\Sigma$:
+
+\noindent$\textsc{Anagram-Free}(m, k, \Sigma)$:
+\begin{algorithmic}[1]
+  \STATE{$n\gets 0$}
+  \FOR{$i\gets 1,\ldots,m$}
+    \STATE{$c_i \gets \text{a uniformly random element in $\Sigma$}$}
+    \STATE{$s_{n+1}\gets c_i$}
+    \STATE{$n\gets n+1$}
+    \IF{$s_{n-2t+1},\ldots,s_n$ is an anagram for some $t\in\{1,\ldots,\floor{n/2}\}$ and $t>k$}
+      \STATE{$n\gets n-t$}
+    \ENDIF
+  \ENDFOR
+  \RETURN{$s_1,\ldots,s_n$}
+\end{algorithmic}
+
+The preceding algorithm clearly returns an anagram free string.  We wish to show that, for sufficiently large $\Sigma$, $\textsc{Anagram-Free}(m, k, \Sigma)$ (typically) returns a string whose length, $n$, is linear in the number, $m$, of iterations.
+
+We call an execution of Line~7 a \emph{deletion event} and we let $d$ denote the number of deletion events.  For each $j\in\{1,\ldots,d\}$, the $j$-th deletion event reduces the length of $s$ by a number of characters (the value $t$ in Line~7) that we will denote by $t_j$.  With these notations we have the identity,
+\begin{equation}  
+  n = m - \sum_{j=1}^d t_j  \eqlabel{sumsize}
+\end{equation}
+since each of the $m$ iterations increments $n$ (Line~5) and the only decreases to $n$ occur during the deletion events.
+
+\section{The Encoding Scheme}
+
+We now describe an encoding scheme that traces the execution of $\textsc{Anagram-Free}(m, k, \Sigma)$ and allows us to recover the random string $c_1,\ldots,c_m$, which is uniformly random over $\Sigma^m$.  In many places we will make use of the Elias $\gamma$ code for natural numbers in which each $x\in\N$ is encoded using $2\floor{\log_2 x}+1$ bits.
+
+Let $i_0:=0$, $i_{d+1}:=m+1$ and, for each $j\in\{1,\ldots,d\}$,
+let $i_j$ denote the value of $i$ in $\textsc{Anagram-Free}(m, \Sigma)$ during the $j$-th deletion event.  For each $j\in\{1,\ldots,d\}$ we define $x_j:=i_{j+1}-i_{j}$ as the number of iterations between the $j$-th and the $(j+1)$-th deletion events, where we use the convention that iteration $m+1$ (which never occurs) is the $(d+1)$-th deletion event.
+
+\subsection{Encoding}
+
+To encode $c_1,\ldots,c_m$, we encode the following information:
+\begin{enumerate}
+  \item The value $d$, using $2\floor{\log_2(d+1)}+1$ bits.
+  \item $x_1,\ldots,x_d$ using $d+\sum_{j=1}^d 2\floor{\log_2x_j}$ bits.
+  \item $t_1,\ldots,t_d$ using $d+\sum_{j=1}^d 2\floor{\log_2 t_j}$ bits.
+  \item $s_1,\ldots,s_n$ using $n\log|\Sigma|$ bits.
+  \item For each $j\in\{1,\ldots,d\}$, the suffix $S_j$ ($s_{n-t+1},\ldots,s_n$ in Line~7) that was deleted during the $j$-th deletion event.  We will show, below, that this can be encoded using at most  
+  \begin{equation}   t_j\log|\Sigma| - \left(\frac{|\Sigma|-1}{2}\right)\ln(2\pi t_j) + \frac{|\Sigma|}{2}\ln |\Sigma| \eqlabel{annoying}
+  \end{equation}
+   bits.  Note that
+   \[  \eqref{annoying} \le t_j\log|\Sigma| - 2\log t_j - a\log|\Sigma| \]
+   for $t_j \ge magic$ 
+\end{enumerate}
+
+\subsection{Decoding}
+
+To recover $c_1,\ldots,c_m$ using this information, we proceed as follows:
+\begin{enumerate}
+  \item If $d=0$, then no deletion events occured, so $m=n$ and $c_1,\ldots,c_m = s_1,\ldots,s_n$.
+  \item If $d>0$ then, from $x_d$, we determine that $c_{m-x_d+1},\ldots,c_m= s_{n-x_d+1},\ldots,s_n$.
+  \item From $t_d$ and $S_d$ we determine the following information about iteration $m-x_d$:
+  \begin{enumerate} 
+    \item the value $n'$ of $n$ in Line~4 was $n-x_d+t_d$ 
+    \item the string $s_1,\ldots,s_{n'+1}$ in Line~5 was the concatenation of $s_1,\ldots,s_{n-x_d}$ and $S_d$.
+    \item the value of $c_{m-x_d}$ is the last character of $S_d$.
+  \end{enumerate}
+  \item At this stage, we have recovered $c_{m-x_d},\ldots,c_m$, we know the string $s_1,\ldots,s_{n'}$ constructed by the algorithm at then of iteration $m-x_d-1$.  This is all the information needed to proceed inductively as if the algorithm had terminated after $m-x_d-1$ iterations and we use this to recover $c_1,\ldots,c_{m-x_d-1}$.
+\end{enumerate}
+
+\subsection{Code Length}
+
+The total size of the resulting encoding is, when $k \ge magic$)
+\begin{align}
+  C & = 2\floor{\log_2(d+1)}+1 
+    + n\log|\Sigma| 
+    + 2d \notag 
+    \\ &\qquad {}+\sum_{j=1}^d\left(2\floor{\log_2x_j}+2\floor{\log_2 t_j}+t_j\log|\Sigma| - 2\log_2 t_j - a\log|\Sigma|\right) \notag \\ 
+  & \le 2\floor{\log_2(d+1)}+1 
+      + n\log|\Sigma| 
+      + 2d  
+      - ad\log|\Sigma| 
+      + \sum_{j=1}^d\left(2\log_2x_j+t_j\log|\Sigma|\right) \notag \\ 
+  & = 2\floor{\log_2(d+1)}+1 
+    + m\log|\Sigma| 
+    + 2d 
+    - ad\log|\Sigma| 
+    + \sum_{j=1}^d2\log_2x_j  \eqlabel{aa} \\ 
+  & \le 2\floor{\log_2(d+1)}+1 
+    + m\log|\Sigma| 
+    + 2d
+    - ad\log|\Sigma| 
+    + 2d\log\left(\frac{m}{d}\right) \\
+  & = m\log|\Sigma| + 2\log(d+1) + d(2+\log(m/d)--a\log|\Sigma|) \enspace . 
+\end{align}
+bits.  Here, \eqref{aa} follows from \eqref{sumsize} and \eqref{bb} follows from concavity of the logarithm and the fact that $\sum_{i=1}^d x_d\le m$.
+
+
+
+
+
+
+%   & \le 2\floor{\log_2(d+1)}+1 
+%     + m\log|\Sigma| 
+%     + 2d + 2d\log(2|\Sigma|)
+%     - (\alpha|\Sigma|-2) \sum_{j=1}^d\log_2 t_j
+% \end{align}
+bits, where the last inequality only holds with high probability because the number $d$ of deletion events is lower-bounded by a $\mathrm{binomial}(m,1/|\Sigma|)$ random variable so with probability at least $1-e^{-m/24}$, $d\ge m/(2|\Sigma|)$..
+
+
+
+
+
+
+\end{document}

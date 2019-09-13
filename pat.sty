@@ -1,6 +1,4 @@
 \usepackage{amsfonts}
-\let\proof\relax
-\let\endproof\relax
 \usepackage{amsthm}
 
 \newcommand{\centeripe}[1]{\begin{center}\Ipe{#1}\end{center}}
@@ -53,6 +51,10 @@
 \newcommand{\obslabel}[1]{\label{obs:#1}}
 \newcommand{\obsref}[1]{Observation~\ref{obs:#1}}
 
+\newtheorem{prop}{Proposition}{\bfseries}{\itshape}
+\newcommand{\proplabel}[1]{\label{prop:#1}}
+\newcommand{\propref}[1]{Proposition~\ref{prop:#1}}
+
 \newtheorem{clm}{Claim}{\bfseries}{\itshape}
 \newcommand{\clmlabel}[1]{\label{clm:#1}}
 \newcommand{\clmref}[1]{Claim~\ref{clm:#1}}
@@ -91,9 +93,9 @@
 
 \newcommand{\keywords}[1]{\noindent\textbf{Keywords:} #1}
 \newcommand{\voronoi}{Vorono\u\i}
-\newcommand{\ceil}[1]{{\lceil #1 \rceil}}
+%\newcommand{\ceil}[1]{{\lceil #1 \rceil}}
 \newcommand{\Ceil}[1]{{\left\lceil #1 \right\rceil}}
-\newcommand{\floor}[1]{{\lfloor #1 \rfloor}}
+%\newcommand{\floor}[1]{{\lfloor #1 \rfloor}}
 \newcommand{\Floor}[1]{{\left\lfloor #1 \right\rfloor}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\N}{\mathbb{N}}

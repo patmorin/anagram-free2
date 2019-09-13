@@ -4,6 +4,9 @@ import collections
 import math
 import sys
 
+def log2(x):
+    return math.log(x,2)
+
 def is_anagram(s):
     return len(s) % 2 == 0 and sorted(s[:len(s)//2]) == sorted(s[len(s)//2:])
 
@@ -58,6 +61,24 @@ def show_histogram(fp, hist):
         fp.write("{}: {:2.1f}% {}\n".format(l, p, "*" * int(p)))
     fp.write("Empirical entropy: {:1.4f}\n".format(entropy(hist)))
 
+def fuctorial(x):
+    return math.gamma(x+1)
+
+def deletion_savings(c, hist):
+    h = entropy(hist)
+    m = sum(hist.values()) # number of iterations
+    p0 = hist[0]/m  # probability of accepting the next character
+
+    savings = 0
+    for t in hist:
+        if t > 0:
+            savings += (t*log2(c) \
+                        - t*log2(m/hist[0]) \
+                        - log2(m/hist[t]) \
+                        - log2(math.factorial(t)) \
+                        + c*log2(fuctorial(t/c)) \
+                        ) * hist[t]/(m-hist[0])
+    return savings
 
 if __name__ == "__main__":
     alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -73,9 +94,10 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         amax = int(sys.argv[2])
 
+    sys.stderr.write("INFO: using {}-character alphabet avoiding anagrams of length greater than {}\n".format(c, amax))
+
     s = ''
-    erejections = 0
-    arejections = 0
+    rejections = 0
     iterations = 0
     rejection_hist = collections.defaultdict(int)
     while 1 < 2:
@@ -84,11 +106,10 @@ if __name__ == "__main__":
         t = anagram_suffix(s, amax)
         rejection_hist[t] += 1
         if t > 0:
-            # if len(s) < 20:
-            #     print(s, t, s[len(s)-2*t:], s[:len(s)-t])
             s = s[:len(s)-t]
-            arejections += t
+            rejections += t
 
+        # Log some stats every thousand or so iterations
         if random.random() < .001:
             filename = "s-{}-{}.txt".format(c, amax)
             with open(filename, 'w') as fp:
@@ -102,22 +123,20 @@ if __name__ == "__main__":
                 else:
                     fp.write("s = '{}'".format(s))
                 fp.write("string length: {} ({:2.1f}%)\n".format(len(s), len(s)*100/iterations))
-                fp.write("deletions: {} ({:2.1f}%)\n".format(arejections, arejections*100/iterations))
+                fp.write("deletions: {} ({:2.1f}%)\n".format(rejections, rejections*100/iterations))
                 fp.write("Histogram of full string\n")
                 show_histogram(fp, string_histogram(s))
-                # if len(s) >= 100*c:
-                #     fp.write("Histogram of middle string\n")
-                #     ss = s[len(s)//2-50*c:len(s)//2+50*c]
-                #     show_histogram(fp, string_histogram(ss))
                 total_rejections = sum([a*b for (a,b) in rejection_hist.items()])
                 fp.write("Total deletions: {}\n".format(total_rejections))
                 fp.write("Longest deletion: {}\n".format(max(rejection_hist.keys())))
                 fp.write("Average deletion: {}\n".format(total_rejections/iterations))
-                fp.write("Average non-empty deletion: {}\n".format(total_rejections/sum(rejection_hist.values())))
+                d = sum([rejection_hist[k] for k in rejection_hist if k > 0])
+                fp.write("Average non-empty deletion: {}\n".format(total_rejections/d))
                 fp.write("Deletion entropy {:1.4f}\n".format(entropy(rejection_hist)))
+                fp.write("Deletion savings {:1.4f}\n".format(deletion_savings(c, rejection_hist)))
                 fp.write("Deletion histogram\n")
                 show_histogram(fp, rejection_hist)
 
 
         # This produces output suitable for gnuplot
-        print("{:10} {:10} {:10} {:10} {}".format(iterations, len(s), erejections, arejections, empirical_entropy(s)))
+        print("{:10} {:10} {:10} {}".format(iterations, len(s), rejections, empirical_entropy(s)))

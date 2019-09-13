@@ -46,7 +46,7 @@
 \setlength{\headsep}{0.4in}
 \setlength{\footskip}{0.500in}
 %\setlength{\parskip}{1ex}
-\setlength{\parindent}{1.25cm}
+\setlength{\parindent}{.75cm}
 %\flushbottom
 
 
@@ -110,12 +110,12 @@
 
 
 %------------- Use this so pdflatex outputs US letter pages -------------
-%\usepackage[letterpaper]{hyperref}
+\usepackage[letterpaper]{hyperref}
 \usepackage[dvipsnames]{color}
 \definecolor{linkblue}{named}{MidnightBlue}
-%\hypersetup{colorlinks=true, linkcolor=linkblue,  anchorcolor=linkblue,
-%	citecolor=linkblue, filecolor=linkblue, menucolor=linkblue,
-%	urlcolor=linkblue} 
+\hypersetup{colorlinks=true, linkcolor=linkblue,  anchorcolor=linkblue,
+	citecolor=linkblue, filecolor=linkblue, menucolor=linkblue,
+	urlcolor=linkblue} 
 
 
 %--------------------------- Headers and Footers ------------------------

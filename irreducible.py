@@ -1,5 +1,5 @@
 import sys
-from math import log2, sqrt
+from math import log2, sqrt, gamma, factorial
 
 
 fac_tab = {0:1, 1:1}
@@ -20,6 +20,14 @@ def irreducible(n):
     ir_tab[n] = factorial(n) - sum( [factorial(i)*irreducible(n-i) for i in range(1, n)] )
     return ir_tab[n]
 
+
+def gfactorial(x):
+    return gamma(x+1)
+
+def anagram_upper_bound(c, n):
+    """ An upper bound on the number of anagrams of length n over an alphabet
+    of size c"""
+    return c**(n/c)*factorial(n)/gfactorial(n/c)**c
 
 if __name__ == "__main__":
     a = dict()
@@ -42,6 +50,7 @@ if __name__ == "__main__":
     print("free kraft = ", 1-sum(krafts))
     print("code 0 size >", log2(1/(1-sum(krafts))))
     for n in range(1, 2*c+1):
-        print(n, log2(c)-log2(irreducible(n))/n)
+        print(n, log2(c)-log2(irreducible(n))/n,
+                 log2(c)-log2(anagram_upper_bound(c, 2*n))/(2*n))
 
     # print("free kraft - 1/2**(4/5) = ", 1-sum(krafts)-1/2**(4/5))
