@@ -128,6 +128,13 @@ Before proving \clmref{whopper}, we show how it implies our main result.  Let $d
 \end{align*} 
 
 
+
+Maybe this lemma makes it easier:
+
+\begin{lem}
+  The number of triggers in $\Sigma^{2t}$ is at most $c^t a_t$, where $a_t$ is 
+\end{lem}
+
 \end{document}
 
 
@@ -154,7 +161,7 @@ We say that a string $s_1,\ldots,s_{2\ell}\in\Sigma^{2\ell}$ is a \emph{trigger}
   To handle the case where $s_1,\ldots,s_\ell$ contains duplicates consider the operator $\phi:\Sigma^{\ell}\to \{1,\ldots,\ell\}\times\Sigma$
   where $\phi(s_1,\ldots,s_\ell)=s_1',\ldots,s_{\ell}'$ is obtained   
   by replacing, for each $x\in\Sigma$ and each $i\in\N$, the $i$th occurrence of $x$ in $s_1,\ldots,s_\ell$ with the pair $(i,x)$.  
-  Now $s_1',\ldots,s_\ell'$ is a sequence of unique tuples on which we may apply the argument to the preceding paragraph.   Finally, for any $s_{\ell+1},\ldots,s_{2\ell}$ such that $s_1,\ldots,s_\ell$ is a trigger, $s_1',\ldots,s_{2\ell}'= s_1',\ldots,s_{\ell}'\cdot \phi(s_{\ell+1},\ldots,s_{2\ell})$ is also a trigger.
+  Now $s_1',\ldots,s_\ell'$ is a sequence of unique tuples on which we may apply the argument from the preceding paragraph.   Finally, for any $s_{\ell+1},\ldots,s_{2\ell}$ such that $s_1,\ldots,s_\ell$ is a trigger, $s_1',\ldots,s_{2\ell}'= s_1',\ldots,s_{\ell}'\cdot \phi(s_{\ell+1},\ldots,s_{2\ell})$ is also a trigger.
 \end{proof}
 
 
