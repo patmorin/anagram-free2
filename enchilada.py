@@ -10,7 +10,6 @@ def irreducible(n):
     ir_tab[n] = factorial(n) - sum( [factorial(i)*irreducible(n-i) for i in range(1, n)] )
     return ir_tab[n]
 
-
 def choices(t, c):
     tmc = t % c
     tdc = t // c
@@ -20,15 +19,15 @@ def choices(t, c):
 
 if __name__ == "__main__":
     c = int(sys.argv[1])
+    e = Fraction(27182819, 10**7)  # Rational upper bound on Euler's constant
     s = 0
-    e = Fraction(27182819, 10**7)
-    # print(e)
-    # print(float(e))
-    for t in range(1, 10*c):
+    t = 1
+    while True:
         a = irreducible(t)
         b = choices(t, c)
         best = min(a, b)
         d = Fraction(e*best, c**t)
-        s += t**3 * d
-        print(t, a, b, factorial(t), best, d)
-    print(s, s-1, float(s-1))
+        s += t * d
+        print(t, float(s)) #, a, b, factorial(t), best, d)
+        t += 1
+    print(float(s))
