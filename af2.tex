@@ -64,111 +64,114 @@
 
 A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no (consecutive) substring that is an anagram.  We say that a string is $\ge k$-anagram-free if it contains no substring of length at least $k$ that is an anagram.
 
-Consider the following algorithm for generating $\ge k$-anagram-free strings over an alphabet $\Sigma$:
+Consider the following algorithm for generating $\ge k$-anagram-free strings over an alphabet $\Sigma$ with $|\Sigma|=c$:
 
 \noindent$\textsc{Anagram-Free}(m, k, \Sigma)$:
 \begin{algorithmic}[1]
   \STATE{$n\gets 0$}
   \FOR{$i\gets 1,\ldots,m$}
-    \STATE{$c_i \gets \text{a uniformly random element in $\Sigma$}$}
-    \STATE{$s_{n+1}\gets c_i$}
+    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma$}$}
+    \STATE{$s_{n+1}\gets x_i$}
     \STATE{$n\gets n+1$}
-    \IF{$s_{n-2t+1},\ldots,s_n$ is an anagram for some $t\in\{1,\ldots,\floor{n/2}\}$ and $t>k$}
-      \STATE{$n\gets n-t$}
-    \ENDIF
+    \STATE{Let $t$ be the largest integer such that $s_{n-2t+1},\ldots,s_n$ is an anagram}
+    \STATE{$n\gets n-t$}
   \ENDFOR
   \RETURN{$s_1,\ldots,s_n$}
 \end{algorithmic}
 
 The preceding algorithm clearly returns an anagram free string.  We wish to show that, for sufficiently large $\Sigma$, $\textsc{Anagram-Free}(m, k, \Sigma)$ (typically) returns a string whose length, $n$, is linear in the number, $m$, of iterations.
 
-We call an execution of Line~7 a \emph{deletion event} and we let $d$ denote the number of deletion events.  For each $j\in\{1,\ldots,d\}$, the $j$-th deletion event reduces the length of $s$ by a number of characters (the value $t$ in Line~7) that we will denote by $t_j$.  With these notations we have the identity,
+Note that, when the algorithm returns in Line~8, it returns a string of length
 \begin{equation}  
-  n = m - \sum_{j=1}^d t_j  \eqlabel{sumsize}
+  n = m - \sum_{i=1}^m t_i  \eqlabel{sumsize}
 \end{equation}
-since each of the $m$ iterations increments $n$ (Line~5) and the only decreases to $n$ occur during the deletion events.
+since each iteration $i\in\{1,\ldots,m\}$ increments $n$ (Line~5) and decreases $n$ by $t_i$ (Line~7) during iteration $i$.
 
 \section{The Encoding Scheme}
 
-We now describe an encoding scheme that traces the execution of $\textsc{Anagram-Free}(m, k, \Sigma)$ and allows us to recover the random string $c_1,\ldots,c_m$, which is uniformly random over $\Sigma^m$.  In many places we will make use of the Elias $\gamma$ code for natural numbers in which each $x\in\N$ is encoded using $2\floor{\log_2 x}+1$ bits.
+We now describe an encoding scheme that traces the execution of $\textsc{Anagram-Free}(m, k, \Sigma)$ and outputs a sequence of bits that allows us to recover the random string $x_1,\ldots,x_m$.  If the algorithm produces an output of length $n < \epsilon m$ then the length of the encoding will be less than $m\log c$.  Since $x_1,\ldots,x_m$ is uniformly random over $|\Sigma|^m$---a set of size $c^m$---the probability that it can be encoded using $m\log c - t$ or fewer bits is at most $2^{-t}$.
 
-Let $i_0:=0$, $i_{d+1}:=m+1$ and, for each $j\in\{1,\ldots,d\}$,
-let $i_j$ denote the value of $i$ in $\textsc{Anagram-Free}(m, \Sigma)$ during the $j$-th deletion event.  For each $j\in\{1,\ldots,d\}$ we define $x_j:=i_{j+1}-i_{j}$ as the number of iterations between the $j$-th and the $(j+1)$-th deletion events, where we use the convention that iteration $m+1$ (which never occurs) is the $(d+1)$-th deletion event.
+We use the phrase ``encoding scheme'' loosely here.  In particular, we will make use of ``codes'' where codewords have non-integer lengths, sometimes even having lengths much less than 1.  We are only doing this for the sake of analysis and all our results could be restated in terms of probabilities, though possibly less intuitively.
+
+We say that a sequence of positive numbers $\langle \ell_i : i\in\Z_{\ge 0}\rangle$ satisfies \emph{Kraft's Inequality} if $\sum_{i\in\Z_{\ge 0}} 2^{-\ell_i} \le 1$.  In this work, we will use binary codes for non-negative integers in which the ``codeword'' for each $i\in\Z_{\ge 0}$ has length $\ell_i$.  Although non-intuitive, this can be rigorously justified so long as the codeword lengths satisfy Kraft's Inequality \cite[Section~7]{morin.mulzer.ea:encoding}.
+
+Critical to this work is a code for non-negative integers whose codeword lengths $\langle \ell_i:i\in\Z_{\ge0}\rangle$ are carefully balanced in order to satisfy Kraft's Inequality in addition to some other requirements.  In this code, the codeword for 0 has length
+\[
+     \ell_0 = \frac{(1+\beta)\log e}{c}
+\]
+for some $\beta >0$.  We will specify the value of $\ell_i$ for $i>0$ as our exposition unfolds.
 
 \subsection{Encoding}
 
 To encode $c_1,\ldots,c_m$, we encode the following information:
 \begin{enumerate}
-  \item The value $d$, using $2\floor{\log_2(d+1)}+1$ bits.
-  \item $x_1,\ldots,x_d$ using $d+\sum_{j=1}^d 2\floor{\log_2x_j}$ bits.
-  \item $t_1,\ldots,t_d$ using $d+\sum_{j=1}^d 2\floor{\log_2 t_j}$ bits.
-  \item $s_1,\ldots,s_n$ using $n\log|\Sigma|$ bits.
-  \item For each $j\in\{1,\ldots,d\}$, the suffix $S_j$ ($s_{n-t+1},\ldots,s_n$ in Line~7) that was deleted during the $j$-th deletion event.  We will show, below, that this can be encoded using at most  
-  \begin{equation}   t_j\log|\Sigma| - \left(\frac{|\Sigma|-1}{2}\right)\ln(2\pi t_j) + \frac{|\Sigma|}{2}\ln |\Sigma| \eqlabel{annoying}
-  \end{equation}
-   bits.  Note that
-   \[  \eqref{annoying} \le t_j\log|\Sigma| - 2\log t_j - a\log|\Sigma| \]
-   for $t_j \ge magic$ 
+  \item The string $s_1,\ldots,s_n$ returned by algorithm in Line~8 using $n\log c$ bits.
+  \item The sequence $t_1,\ldots,t_m$ of deletions using $\sum_{i=1}^m \ell_{t_i}$ bits.
+  \item A sequence $\xi_1,\ldots,\xi_m$ where each $\xi_i$ contains enough information to recover the $t_i$ values deleted from $s$ during iteration $i$.
 \end{enumerate}
+
+The number of bits required for the third item is the subject of \secref{something}, where we will show that the number of bits required for $\xi_i$ is at most
+\begin{equation}
+   |\xi_i| 
+   \le \begin{cases}
+     0 & \text{if $t_i=0$} \\
+     t_i(\log c - (1+\epsilon)\ell_0) - \ell_{t_i} 
+        & \text{otherwise}
+   \end{cases}  \eqlabel{xi-i}
+\end{equation}
+for some $\epsilon > 0$.
+
+Let $I_0=\{i\in\{1,\ldots,m\}: t_i=0\}$ and let $I_{>0}=\{1,\ldots,m\}\setminus I_0$.
+It follows that the number of bits used in this encoding is
+\begin{align*}
+    |C| 
+    & = n\log c + \sum_{i\in I_0} \ell_0
+       + \sum_{i\in I_{>0}} (|\xi_i| + \ell_{t_i}) \\
+       & = n\log c + |I_0|\ell_0
+          + \sum_{i\in I_{>0}} t_i(\log c - (1+\epsilon)\ell_0) \\
+       & = m\log c + |I_0|\ell_0
+           - \sum_{i\in I_{>0}} t_i(1+\epsilon)\ell_0 \\
+       & = m\log c + |I_0|\ell_0
+           - (m-n)(1+\epsilon)\ell_0 \\
+       & \le m\log c + m\ell_0
+           - (m-n)(1+\epsilon)\ell_0 \\
+       & \le m\log c - \lambda\ell_0
+\end{align*}
+for any positive $\lambda$ such that
+\[
+     n \le \frac{\epsilon m-\lambda}{1+\epsilon} \enspace .
+\]
+For example, taking $\lambda = c/(1+\beta)$ shows that the probability that the algorithm fails to produce an output of length more than $\frac{\epsilon m-c/(1+\beta)}{1+\epsilon}$ is at most $1/e$.
+
+It still remains to describe the codeword lengths $\langle \ell_i:i\in \N\rangle$ as well the the encodings of $\xi_i$ satisfying \eqref{xi-i}.  Before doing so, we first review how the encoding can be used to recover $x_1,\ldots,x_m$.
+
 
 \subsection{Decoding}
 
-To recover $c_1,\ldots,c_m$ using this information, we proceed as follows:
+To recover $x_1,\ldots,x_m$ using this information, we proceed as follows:
 \begin{enumerate}
-  \item If $d=0$, then no deletion events occured, so $m=n$ and $c_1,\ldots,c_m = s_1,\ldots,s_n$.
-  \item If $d>0$ then, from $x_d$, we determine that $c_{m-x_d+1},\ldots,c_m= s_{n-x_d+1},\ldots,s_n$.
-  \item From $t_d$ and $S_d$ we determine the following information about iteration $m-x_d$:
-  \begin{enumerate} 
-    \item the value $n'$ of $n$ in Line~4 was $n-x_d+t_d$ 
-    \item the string $s_1,\ldots,s_{n'+1}$ in Line~5 was the concatenation of $s_1,\ldots,s_{n-x_d}$ and $S_d$.
-    \item the value of $c_{m-x_d}$ is the last character of $S_d$.
-  \end{enumerate}
-  \item At this stage, we have recovered $c_{m-x_d},\ldots,c_m$, we know the string $s_1,\ldots,s_{n'}$ constructed by the algorithm at then of iteration $m-x_d-1$.  This is all the information needed to proceed inductively as if the algorithm had terminated after $m-x_d-1$ iterations and we use this to recover $c_1,\ldots,c_{m-x_d-1}$.
+  \item If $t_i=0$ for all $i\in\{1,\ldots,m\}$, then $m=n$ and we immediately deduce that $x_1,\ldots,x_m=s_1,\ldots,s_n$.
+  \item Otherwise, we find the minimum value $d$ such that $t_{m-d}\neq 0$.  
+  From this we deduce that $x_{m-d+1},\ldots,x_m = s_{n-d+1},\ldots,s_n$.
+  \item Since $s_1,\ldots,s_{n-d}$ was the string generated by the algorithm at the end of iteration $i$, immediately after deleting a suffix $s'_{n-d+1},\ldots,s'_{n-d+t_{m-d}}$ of length $t_{m-d}$.
+  \item The string $\xi_{m-d}$ contains enough information to recover
+  $s'_{n-d+1},\ldots,s'_{n-d+t_{m-d}}$.
+  \item We know that $x_{m-d} = s'_{n-d+t_{m-d}}$ triggered the deletion of $t_{m-d}$ elements.
+  \item Therefore, at the end of iteration $m-d-1$ the algorithm had constructed the string $s_1,\ldots,s_{n-d},s'_{n-d+1},\ldots,s'_{n-d+t_{m-d}-1}$.
+  \item At this point we have recovered $x_{m-d},\ldots,x_m$ as well as the string constructed by the algorithm at the conclusion of iteration $m-d-1$.  We can the proceed inductively using $t_1,\ldots,t_{m-d-1}$, $\xi_1,\ldots,\xi_{m-d-1}$ and $s_1,\ldots,s_{n-d},s'_{n-d+1},\ldots,s'_{n-d+t_{m-d}-1}$ to recover $x_1,\ldots,x_{m-d-1}$.
 \end{enumerate}
 
 \subsection{Code Length}
 
-The total size of the resulting encoding is, when $k \ge magic$)
-\begin{align}
-  C & = 2\floor{\log_2(d+1)}+1 
-    + n\log|\Sigma| 
-    + 2d \notag 
-    \\ &\qquad {}+\sum_{j=1}^d\left(2\floor{\log_2x_j}+2\floor{\log_2 t_j}+t_j\log|\Sigma| - 2\log_2 t_j - a\log|\Sigma|\right) \notag \\ 
-  & \le 2\floor{\log_2(d+1)}+1 
-      + n\log|\Sigma| 
-      + 2d  
-      - ad\log|\Sigma| 
-      + \sum_{j=1}^d\left(2\log_2x_j+t_j\log|\Sigma|\right) \notag \\ 
-  & = 2\floor{\log_2(d+1)}+1 
-    + m\log|\Sigma| 
-    + 2d 
-    - ad\log|\Sigma| 
-    + \sum_{j=1}^d2\log_2x_j  \eqlabel{aa} \\ 
-  & \le 2\floor{\log_2(d+1)}+1 
-    + m\log|\Sigma| 
-    + 2d
-    - ad\log|\Sigma| 
-    + 2d\log\left(\frac{m}{d}\right) \\
-  & = m\log|\Sigma| + 2\log(d+1) + d(2+\log(m/d)-a\log|\Sigma|) \enspace . 
-\end{align}
-bits.  Here, \eqref{aa} follows from \eqref{sumsize} and \eqref{bb} follows from concavity of the logarithm and the fact that $\sum_{i=1}^d x_d\le m$.
+We now describe the rest of the code.
 
+If $t_i=1$, then $s_n=s_{n-1}$ and there is nothing to encode, so $|\xi_1|=0$.  We set $\ell_1=\log c - (1+\epsilon)\ell_0$.
 
+If $t_i=2$, then there is also nothing to encode since $s_{n-3},s_{n-2}=s_{n-1},s_n$. We set $\ell_2=2(\log c - (1+\epsilon)\ell_0)$.
 
+IF $t_i=3$, then $s_{n-3},s_{n-4},s_{n-5}$ are all distinct, and $s_{n-2},s_{n-1},s_n$ is an irreducible permutation of $s_{n-3},s_{n-4},s_{n-5}$.  The number, $a_3$, of irreducible permutations of length 3 is 3, so $|\xi_i|=\log 3$.  We set $\ell_3 = 3(\log c-(1+\epsilon)\ell_0)-\log 3$.
 
-
-
-
-
-%   & \le 2\floor{\log_2(d+1)}+1 
-%     + m\log|\Sigma| 
-%     + 2d + 2d\log(2|\Sigma|)
-%     - (\alpha|\Sigma|-2) \sum_{j=1}^d\log_2 t_j
-% \end{align}
-bits, where the last inequality only holds with high probability because the number $d$ of deletion events is lower-bounded by a $\mathrm{binomial}(m,1/|\Sigma|)$ random variable so with probability at least $1-e^{-m/24}$, $d\ge m/(2|\Sigma|)$..
-
-
-
+In general, if $t_i=t$ for $t\le c$, $|\xi_i|=\log a_t$ where $a_t$ is the number of irreducible permutations of length $t$. We set $\ell_t = t(\log c - (1+\epsilon)\ell_0) - \log a_t$.
 
 
 

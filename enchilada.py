@@ -1,5 +1,6 @@
 import sys
-from math import ceil, factorial
+from math import ceil, factorial, e, log2
+from math import log as ln
 from fractions import Fraction
 
 ir_tab = {0:0, 1:1, 2:1}
@@ -20,15 +21,29 @@ def choices(t, c):
 
 if __name__ == "__main__":
     c = int(sys.argv[1])
-    s = 0
     e = Fraction(27182819, 10**7)
-    # print(e)
-    # print(float(e))
-    for t in range(1, 10*c):
+    w = [2**(-log2(e)/c)]
+    w = [2**(-1.5/c)]
+    base = (c-2)*((c-1)**3 + (c-1)**2)
+    # w = [c**(-1/c)]
+    # c2 = Fraction(9*c, 10)
+    for t in range(1, 10**6):
+        # print(w)
         a = irreducible(t)
         b = choices(t, c)
+        x = (c-1)**(t%4) * base**(t//4)
+        if a <= b and a <= x:
+            best = a
+            txt = 'a'
+        elif b <= a and b <= x:
+            best = b
+            txt = 'b'
+        else:
+            best = x
+            txt = 'x'
         best = min(a, b)
-        d = Fraction(e*best, c**t)
-        s += t**3 * d
-        print(t, a, b, factorial(t), best, d)
-    print(s, s-1, float(s-1))
+        best = min(best, x)
+        w.append(Fraction(best, c**t))
+        # print(t, a, b, best, sum(w), float(sum(w)))
+        f = float(sum(w[1:]))
+        print(t, txt, w[0], f, w[0]+f)
