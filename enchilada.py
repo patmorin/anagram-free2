@@ -11,7 +11,6 @@ def irreducible(n):
     ir_tab[n] = factorial(n) - sum( [factorial(i)*irreducible(n-i) for i in range(1, n)] )
     return ir_tab[n]
 
-
 def choices(t, c):
     tmc = t % c
     tdc = t // c
