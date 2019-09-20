@@ -19,6 +19,8 @@
 
 \usepackage{doi} % To make plainnat handle doi's properly 
 
+\newcommand{\ceil}[1]{\lceil #1\rceil}
+% \newcommand{\floor}[1]{\lfloor #1\rfloor}
 
 \usepackage[mathlines]{lineno}
 % \setlength{\linenumbersep}{2em}
@@ -95,11 +97,18 @@ We use the phrase ``encoding scheme'' loosely here.  In particular, we will make
 
 We say that a sequence of positive numbers $\langle \ell_i : i\in\Z_{\ge 0}\rangle$ satisfies \emph{Kraft's Inequality} if $\sum_{i\in\Z_{\ge 0}} 2^{-\ell_i} \le 1$.  In this work, we will use binary codes for non-negative integers in which the ``codeword'' for each $i\in\Z_{\ge 0}$ has length $\ell_i$.  Although non-intuitive, this can be rigorously justified so long as the codeword lengths satisfy Kraft's Inequality \cite[Section~7]{morin.mulzer.ea:encoding}.
 
-Critical to this work is a code for non-negative integers whose codeword lengths $\langle \ell_i:i\in\Z_{\ge0}\rangle$ are carefully balanced in order to satisfy Kraft's Inequality in addition to some other requirements.  In this code, the codeword for 0 has length
+Critical to this work is a code for non-negative integers whose codeword lengths $\langle \ell_t:t\in\Z_{\ge0}\rangle$ are carefully balanced in order to satisfy Kraft's Inequality in addition to some other requirements.  In this code, the codeword for 0 has length
 \[
-     \ell_0 = \frac{(1+\beta)\log e}{c}
+     \ell_0 = \frac{\beta\log e}{c}
 \]
-for some $\beta >0$.  We will specify the value of $\ell_i$ for $i>0$ as our exposition unfolds.
+for some $\beta >1$ that will be discussed later.  For each $t\in \Z_{\ge0}$, we let $w_t=2^{\ell_t}$, so that Kraft's Inequality requires $\sum_{t=0}^\infty w_t^{-1} \le 1$.  We have
+\[
+   w_0^{-1} = 2^{-\ell_0} = e^{-\beta/c} \approx 1-\beta/c \enspace .
+\]
+Therefore, in order to satisfy Kraft's Inequality, we must choose codeword lengths that satisfy
+\[
+   \sum_{t=1}^\infty 2^{-\ell_t} < \beta/c \enspace .
+\]
 
 \subsection{Encoding}
 
@@ -115,11 +124,10 @@ The number of bits required for the third item is the subject of \secref{somethi
    |\xi_i| 
    \le \begin{cases}
      0 & \text{if $t_i=0$} \\
-     t_i(\log c - (1+\epsilon)\ell_0) - \ell_{t_i} 
+     t_i(\log c - \ell_0) - \ell_{t_i} 
         & \text{otherwise}
    \end{cases}  \eqlabel{xi-i}
 \end{equation}
-for some $\epsilon > 0$.
 
 Let $I_0=\{i\in\{1,\ldots,m\}: t_i=0\}$ and let $I_{>0}=\{1,\ldots,m\}\setminus I_0$.
 It follows that the number of bits used in this encoding is
@@ -128,20 +136,16 @@ It follows that the number of bits used in this encoding is
     & = n\log c + \sum_{i\in I_0} \ell_0
        + \sum_{i\in I_{>0}} (|\xi_i| + \ell_{t_i}) \\
        & = n\log c + |I_0|\ell_0
-          + \sum_{i\in I_{>0}} t_i(\log c - (1+\epsilon)\ell_0) \\
+          + \sum_{i\in I_{>0}} t_i(\log c - \ell_0) \\
        & = m\log c + |I_0|\ell_0
-           - \sum_{i\in I_{>0}} t_i(1+\epsilon)\ell_0 \\
+           - \sum_{i\in I_{>0}} t_i\ell_0 \\
        & = m\log c + |I_0|\ell_0
-           - (m-n)(1+\epsilon)\ell_0 \\
-       & \le m\log c + m\ell_0
-           - (m-n)(1+\epsilon)\ell_0 \\
-       & \le m\log c - \lambda\ell_0
+           - (m-n)\ell_0 \\
+       & \le m\log c + (1-2/c)m\ell_0
+           - (m-n)\ell_0 & \text{(justify with Chernoff)}\\
+       & \le m\log c - m\ell_0/c 
 \end{align*}
-for any positive $\lambda$ such that
-\[
-     n \le \frac{\epsilon m-\lambda}{1+\epsilon} \enspace .
-\]
-For example, taking $\lambda = c/(1+\beta)$ shows that the probability that the algorithm fails to produce an output of length more than $\frac{\epsilon m-c/(1+\beta)}{1+\epsilon}$ is at most $1/e$.
+for $n \le m/c$.  This shows that the probability that the algorithm fails to produce an output of length at least $m/c$ is at most $2^{-m\ell_0/c} = e^{-\beta m/c^2}$.
 
 It still remains to describe the codeword lengths $\langle \ell_i:i\in \N\rangle$ as well the the encodings of $\xi_i$ satisfying \eqref{xi-i}.  Before doing so, we first review how the encoding can be used to recover $x_1,\ldots,x_m$.
 
@@ -163,15 +167,99 @@ To recover $x_1,\ldots,x_m$ using this information, we proceed as follows:
 
 \subsection{Code Length}
 
-We now describe the rest of the code.
+We now describe the rest of the code.  For an anagram-free string $s=s_1,\ldots,s_t\in \Sigma^{t}$, let $a(s)$ be the number of strings $s_{t+1},\ldots,s_{2t}\in\Sigma^t$ such that, (i)~$s_1,\ldots,s_{t+i}$ is anagram-free for all $i\in\{1,\ldots,t-1\}$ and (ii)~$s_1,\ldots,s_{2t}$ is an anagram.  Let 
+\[
+   a_t = \max\left|\left\{a(s) : \text{$s\in \Sigma^t$ and $s$ is anagram-free} \right\}\right|
+\]
+Observe that the length of the codeword needed for $\xi_i$ is at most $\log a_{t_i}$.  Therefore, \eqref{xi-i} is satisfied by choosing, for each $t\in \N$,
+\[
+   \ell_t = t(\log c - \ell_0)- \log a_t   \enspace .
+\]
+All that remains is to show that this leads to a sequence of codeword lengths $\langle \ell_i : i\in Z_{\ge 0}\rangle$ that satisfy Kraft's Inequality.  In particular, we need to show that
+\[
+  \sum_{t=1}^\infty 2^{-\ell_t} = \sum_{t=1}^\infty 2^{-\ell_t} \le 1-e^{-\beta/c} \approx \beta/c \enspace .
+\]
 
-If $t_i=1$, then $s_n=s_{n-1}$ and there is nothing to encode, so $|\xi_1|=0$.  We set $\ell_1=\log c - (1+\epsilon)\ell_0$.
+\subsection{Analysis of $a_t$ for $t\le c$: Irreducible Permutations}
 
-If $t_i=2$, then there is also nothing to encode since $s_{n-3},s_{n-2}=s_{n-1},s_n$. We set $\ell_2=2(\log c - (1+\epsilon)\ell_0)$.
+Beginning with $a_1$, we see that $a_1=1$ since any anagram of length 2 has its second half equal to its first half.  Therefore, $a_1=\log 1 = 0$, so $\ell_1=\log c - \ell_0$ and 
+\[
+   w_1^{-1} = 2^{-\ell_1} = \frac{w_0}{c} = \frac{e^{\beta/c}}{c} \approx \frac{1}{c}+\frac{\beta}{c^2}
+\]
+Since $\beta >1$, this still leaves some wiggle-room:
+\[
+    w_0^{-1} + w_1^{-1} = e^{-\beta/c} + \frac{e^{\beta/c}}{c}
+    \le 1 - \frac{\beta}{c} + O(1/c^2)  \quad \text{Double check!!}
+\]
 
-IF $t_i=3$, then $s_{n-3},s_{n-4},s_{n-5}$ are all distinct, and $s_{n-2},s_{n-1},s_n$ is an irreducible permutation of $s_{n-3},s_{n-4},s_{n-5}$.  The number, $a_3$, of irreducible permutations of length 3 is 3, so $|\xi_i|=\log 3$.  We set $\ell_3 = 3(\log c-(1+\epsilon)\ell_0)-\log 3$.
+For $a_2$, a quick check verifies that if $s_1,\ldots,s_3$ is anagram-free but $s_1,\ldots,s_4$ is an anagram, then $s_1s_2=s_3s_4$.  Therefore $a_2=1$, so
+$\ell_2 = 2(\log c - \ell_0)$ and
+\[
+   w_2^{-1} = \left(\frac{w_0}{c}\right)^2 < \left(\frac{2}{c}\right)^2 \enspace , 
+\]
+so 
+\[
+  \sum_{t=0}^2 w_t^{-1} = \frac{\beta}{c} + O(1/c^2) \enspace .
+\]
 
-In general, if $t_i=t$ for $t\le c$, $|\xi_i|=\log a_t$ where $a_t$ is the number of irreducible permutations of length $t$. We set $\ell_t = t(\log c - (1+\epsilon)\ell_0) - \log a_t$.
+The value of $a_3$ represents the first interesting case.  Again, if $s_1,\ldots,s_5$ is anagram-free but $s_1,\ldots,s_6$ is an anagram, then $s_1,s_2,s_3$ are distinct and $s_4\neq s_3$, and $\{s_4,s_5\}\neq \{s_2,s_3\}$.  This leaves three possibilities for $s_4,s_5,s_6$:
+\[   s_1,s_2,s_3 \quad s_1,s_3,s_2 \quad s_2,s_1,s_3 \enspace . \]
+Thus, $\ell_3 = 3(\log c - \ell_0) - \log 3$ and
+\[
+   w_3^{-1} = 3\left(\frac{w_0}{c}\right)^{3} \enspace .
+\]
+
+The case of $a_3$ illustrates a general phenomenon: For $t\in\{1,\ldots,c\}$, $a(s_1,\ldots,s_t)$ is maximized when $s_1,\ldots,s_t$ are all distinct.  In this case, the requirement that $s_1,\ldots,s_{2t-1}$ is anagram-free implies that $\{s_{t+1},\ldots,s_{t+r}\}\neq\{s_{t-r+1},\ldots,s_t\}$.  Without loss of generality, we may assume that $s_1,\ldots,s_t=t,t-1,\ldots,1$.  Thus, $s_{t+1},\ldots,s_{2t}$ is a permutation $\pi_t,\ldots,\pi_t$ of $\{1,\ldots,t\}$ for which $\{\pi_1,\ldots,\pi_j\}\neq\{1,\ldots,j\}$ for any $j\in\{1,\ldots,t-1\}$.  Such permutations are called \emph{irreducible permutations} and are well-studied.  The sequence $\langle s_t: t\in\N\rangle$ where $s_t$ is the number of irreducible permutations of length $t$ appears as sequence A003319 in the OEIS.  More importantly, there is a recursive formula for $s_t$:
+\[
+   s_t = t! - \sum_{i=1}^{t-1} s_i(t-i)!
+\]
+that allows us to efficiently compute exact values of $s_t$. We use this fact in the computer part of our proof.  For now, we will summarize this part as
+\[
+    \ell_t \ge t(\log c-\ell_0) - \log s_t
+\]
+so
+\[
+   w_t^{-1} \le \frac{s_t e^{t\beta/c}}{c^t}
+\]
+for all $t\in\{1,\ldots,c\}$.  The upper bound $a_t \le s_t$ is most useful for small values of $t$.  For larger values of $t$, the upper bound $a_t \le t!$ is almost as good since $a_t/t!\rightarrow 1$ as $t\rightarrow\infty$.
+
+\subsection{Analysis of $a_t$ for $t > c$: Multinomial Coefficients}
+
+For $t>c$, we observe that the second half of an anagram-free string is a permutation of a multiset.  The number of such distinct permutations is at most
+\[
+    \frac{t!}{f_1!\times f_2!\times \cdots\times f_t!}
+\]
+where, for each $i\in\Sigma$, $f_i$ is the number of appearances of $i$ in the first half of the string.  Since the factorial function is convex, this is maximized when $f_1=f_2=\cdots=f_t=t/c$ when $t/c$ is an integer.  When $t/c$ is not an integer, it is maximized when $f_1=f_2=\cdots=f_{t\bmod c}=\ceil{t/c}$ and $f_{1+t\bmod c}=\cdots=f_c=\floor{t/c}$.  Therefore,
+\[
+    a_t \le \frac{t!}{(\ceil{t/c}!)^{t\bmod c}\times (\floor{t/c}!)^{-t\bmod c}}
+    = \frac{t!}{(\floor{t/c}!)^c\times \ceil{t/c}^{t\bmod c}} \enspace .
+\]
+Using Stirling's Inequality, the preceding upper bound yields a bound of the form
+\[
+   \log a_t \le t\log t - t\log e + O(\log t) - c\log(\floor{t/c}!) - (t\bmod c)\log(\ceil{t/c}) \enspace .
+\]
+
+\subsection{Analysis of $a_t$ for $t\ggg c$: The Dumb Estimate}
+
+As $t$ becomes much larger than $c$, the multinomial estimate from the previous section degenerates to the form
+\[
+   \log a_t \le t\log c - c\log(t/c) + O(\log t)
+\]
+In particular, the difference between the trivial code length $t\log c$ and the code length obtained from the estimate increases only logarithmically in $t$.
+
+For $t\ggg c$, we can use estimates based on the fact that the second half of the string is itself anagram-free.  As a basic upper upper-bound, we can start with the observation that, for any string $s_1,\ldots,s_{2t}$ whose second half is deleted, $s_{i}\neq s_{i-1}$ for any $i\in\{t+1,\ldots,2t\}$.  Therefore,
+$a_t \le (c-1)^t$ and
+\[
+     \log a_t \le t\log(c-1) < t\log c - t\left(\frac{\log e}{c-1}\right)
+\]
+
+This estimate is not quite good enough.  Instead, we can use the slightly more elaborate estimate (valid when $t\equiv 0\pmod 4$):
+\[
+     a_t \le \left((c-2)( (c-1)^3+(c-1)^2 )\right)   ^{t/4}
+\]
+obtained by counting the number of anagram-free strings of length 4.
+
+
 
 
 
