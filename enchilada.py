@@ -21,16 +21,15 @@ def choices(t, c):
 if __name__ == "__main__":
     c = int(sys.argv[1])
     e = Fraction(27182819, 10**7)
-    w = [2**(-log2(e)/c)]
-    w = [2**(-1.5/c)]
-    base = (c-2)*((c-1)**3 + (c-1)**2)
+    w = [2**(-0.95*log2(c)/c)]
+    # w = [2**(-1.5/c)]
     # w = [c**(-1/c)]
     # c2 = Fraction(9*c, 10)
     for t in range(1, 10**6):
         # print(w)
         a = irreducible(t)
         b = choices(t, c)
-        x = (c-1)**(t%4) * base**(t//4)
+        x = (c-1)**t
         if a <= b and a <= x:
             best = a
             txt = 'a'
