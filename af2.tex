@@ -146,33 +146,42 @@ The number of bits required for the third item is the subject of \secref{somethi
    |\xi_i| 
    \le \begin{cases}
      0 & \text{if $t_i = 0$} \\
-     t_i\log c +(\beta/c)\log e + (t_i-1)\log(c-1) - t_i(\alpha/c)\log e) - \ell_{t_i} 
+     t_i\log c + (t_i-1)\log(c-1) + (\beta/c)\log e - t_i(\alpha/c)\log e) - \ell_{t_i} 
         & \text{otherwise} \\
-     t_i(\log c - (\alpha/c)\log e) +(\beta/c)\log e - \ell_{t_i} 
-        & \text{otherwise}
+     % t_i(\log c - (\alpha/c)\log e) +(\beta/c)\log e - \ell_{t_i} 
+        % & \text{otherwise}
    \end{cases}  \eqlabel{xi-i}
 \end{equation}
-for some $1 > \alpha > \beta$.
-Here is the intuition behind this choice.  Infortmation-theoretically, each iteration $i\in\{1,\ldots,m\}$ uses one random value $x_i$, so it should contribute at least $\log c$ bits to the length of the encoding.  In fact, each iteration will contribute $\log c + (\beta/c)\log e$ bits to the encoding.  Thus, we should think of $(\beta/c)\log e$ as an overhead cost per iteration so that the total overhead is $m(\beta/c)\log n$.  However, if $t_i>0$, then $(\alpha/c)t_i$ bits of this overhead are recovered.  Thus, $\sum_{i=1}^m t_i(\alpha/c)\log e = (m-n)(\alpha/c)\log e$ bits.  Thus, the total length of the encoding is
-\[
-    m\log c + m(\beta/c)\log e - (m-n)(\alpha/c)\log e < m\log c
-\]
-when $n<(1-\beta/\alpha)m$.
+for some $1 > \alpha > \beta > 0$.
+% Here is the intuition behind this choice.  Infortmation-theoretically, each iteration $i\in\{1,\ldots,m\}$ uses one random value $x_i$, so it should contribute at least $\log c$ bits to the length of the encoding.  In fact, each iteration will contribute $\log c + (\beta/c)\log e$ bits to the encoding.  Thus, we should think of $(\beta/c)\log e$ as an overhead cost per iteration so that the total overhead is $m(\beta/c)\log n$.  However, if $t_i>0$, then $(\alpha/c)t_i$ bits of this overhead are recovered.  Thus, $\sum_{i=1}^m t_i(\alpha/c)\log e = (m-n)(\alpha/c)\log e$ bits.  Thus, the total length of the encoding is
+% \[
+%     m\log c + m(\beta/c)\log e - (m-n)(\alpha/c)\log e < m\log c
+% \]
+% when $n<(1-\beta/\alpha)m$.
 
-We make this more formal as follows:  For each $t\in\N$, let $d_t$ denote the number of iterations $i\in\{1,\ldots,m\}$ for which $t_i=t$. 
+% We make this more formal as follows:  
+
+For each $t\in\N$, let $d_t$ denote the number of iterations $i\in\{1,\ldots,m\}$ for which $t_i=t$. 
 \begin{align*}
     |C| 
     & = \log c + (n-1)\log(c-1) + d_0\ell_0 \\ 
-      & \quad {} + \sum_{t=1}^m \left(d_t t(\log c - (\alpha/c)\log e) + (\beta/c)\log e\right) \\
+      & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (\beta/c)\log e + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
+      \\
     & = \log c + (n-1)\log(c-1) + d_0(\log(c/(c-1))+(\beta/c)\log e) \\ 
-      & \quad {} + \sum_{t=1}^m \left(d_t t(\log c - (\alpha/c)\log e) + (\beta/c)\log e\right) \\
-    & = \log c + (n-1)\log(c-1) + m(\beta/c)\log e + d_0\log(c/(c-1) \\ 
-      & \quad {} + \sum_{t=1}^m \left(d_t t(\log c - (\alpha/c)\log e) \right) \\
-    & = \log c + (n-1)\log(c-1) + m(\log c + (\beta/c)\log e) - d_0\log(c-1) \\
-      & \quad {} - \sum_{t=1}^m \left(d_t t(\alpha/c)\log e \right) \\
-    & = \log c + (n-1)\log(c-1) + m(\log c + (\beta/c)\log e) - d_0\log(c-1) \\ 
-      & \quad {} - (m-n)(\alpha/c)\log e \\
-    & \le \log (c/(c-1)) + m(\log c + (\beta/c)\log e) - (m-n)(\alpha/c)\log e \\
+      & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (\beta/c)\log e + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
+      \\
+    & = \log c + (n-1)\log(c-1) + m(\beta/c)\log e + d_0\log(c/(c-1)) \\ 
+        & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
+      \\
+    & = \log c + (n-1)\log(c-1) + m\log c + m(\beta/c)\log e - d_0\log(c-1) \\ 
+        & \qquad {} + \sum_{t=1}^m d_t\left((t-1)\log(c-1) - t(\alpha/c)\log e\right) 
+      \\
+    & = \log c + (n-1)\log(c-1) + m\log c + m(\beta/c)\log e - n\log(c-1) - \sum_{t=1}^m d_t t(\alpha/c)\log e 
+        \\
+    & = \log (c/(c-1)) + m\log c + m(\beta/c)\log e - \sum_{t=1}^m d_t t(\alpha/c)\log e 
+        \\
+    & = \log (c/(c-1)) + m\log c + m(\beta/c)\log e - (m-n)(\alpha/c)\log e 
+      \\
     & < m\log c - k
 \end{align*}
 when $n \le BLAH(k)$.  This shows that the probability that the algorithm fails to produce an output of length at least $BLAH$ is at most $2^{-k}$.
@@ -198,11 +207,11 @@ To recover $x_1,\ldots,x_m$ using this information, we proceed as follows:
 
 We now describe the rest of the code.  For an anagram-free string $s=s_1,\ldots,s_t\in \Sigma^{t}$, let $a(s)$ be the number of strings $s_{t+1},\ldots,s_{2t}\in\Sigma^t$ such that, (i)~$s_1,\ldots,s_{t+i}$ is anagram-free for all $i\in\{1,\ldots,t-1\}$ and (ii)~$s_1,\ldots,s_{2t}$ is an anagram.  Let 
 \[
-   a_t = \max\left|\left\{a(s) : \text{$s\in \Sigma^t$ and $s$ is anagram-free} \right\}\right|
+   a_t = \max\left\{a(s) : \text{$s\in \Sigma^t$ and $s$ is anagram-free} \right\}
 \]
 Observe that the length of the codeword needed for $\xi_i$ is at most $\log a_{t_i}$.  Therefore, \eqref{xi-i} is satisfied by choosing, for each $t\in \N$,
 \[
-   \ell_t = t\log c - (\alpha/c)\log e) + (\beta/c)\log e - \log a_t   \enspace .
+   \ell_t = t\log c + (t-1)\log(c-1) + (\beta/c)\log e - t(\alpha/c)\log e - \log a_t   \enspace .
 \]
 All that remains is to show that this leads to a sequence of codeword lengths $\langle \ell_t : i\in Z_{\ge 0}\rangle$ that satisfy Kraft's Inequality.  In particular, we need to show that
 \[
@@ -218,7 +227,7 @@ Beginning with $a_1$, we see that $a_1=1$ since any anagram of length 2 has its 
 Since $\beta >1$, this still leaves some wiggle-room:
 \[
     w_0^{-1} + w_1^{-1} = e^{-\beta/c} + \frac{e^{\beta/c}}{c}
-    \le 1 - \frac{\beta}{c} + O(1/c^2)  \quad \text{Double check!!}
+    \le 1 - \frac{\beta}{c} + O(1/c^2)  \qquad \text{Double check!!}
 \]
 
 For $a_2$, a quick check verifies that if $s_1,\ldots,s_3$ is anagram-free but $s_1,\ldots,s_4$ is an anagram, then $s_1s_2=s_3s_4$.  Therefore $a_2=1$, so
@@ -232,7 +241,7 @@ so
 \]
 
 The value of $a_3$ represents the first interesting case.  Again, if $s_1,\ldots,s_5$ is anagram-free but $s_1,\ldots,s_6$ is an anagram, then $s_1,s_2,s_3$ are distinct and $s_4\neq s_3$, and $\{s_4,s_5\}\neq \{s_2,s_3\}$.  This leaves three possibilities for $s_4,s_5,s_6$:
-\[   s_1,s_2,s_3 \quad s_1,s_3,s_2 \quad s_2,s_1,s_3 \enspace . \]
+\[   s_1,s_2,s_3 \qquad s_1,s_3,s_2 \qquad s_2,s_1,s_3 \enspace . \]
 Thus, $\ell_3 = 3(\log c - \ell_0) - \log 3$ and
 \[
    w_3^{-1} = 3\left(\frac{w_0}{c}\right)^{3} \enspace .
