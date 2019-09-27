@@ -146,6 +146,8 @@ The number of bits required for the third item is the subject of \secref{somethi
    |\xi_i| 
    \le \begin{cases}
      0 & \text{if $t_i = 0$} \\
+     t_i\log c +(\beta/c)\log e + (t_i-1)\log(c-1) - t_i(\alpha/c)\log e) - \ell_{t_i} 
+        & \text{otherwise} \\
      t_i(\log c - (\alpha/c)\log e) +(\beta/c)\log e - \ell_{t_i} 
         & \text{otherwise}
    \end{cases}  \eqlabel{xi-i}
@@ -200,7 +202,7 @@ We now describe the rest of the code.  For an anagram-free string $s=s_1,\ldots,
 \]
 Observe that the length of the codeword needed for $\xi_i$ is at most $\log a_{t_i}$.  Therefore, \eqref{xi-i} is satisfied by choosing, for each $t\in \N$,
 \[
-   \ell_t = t(\log c - (\alpha/c)\log e) + (\beta/c)\log e - \log a_t   \enspace .
+   \ell_t = t\log c - (\alpha/c)\log e) + (\beta/c)\log e - \log a_t   \enspace .
 \]
 All that remains is to show that this leads to a sequence of codeword lengths $\langle \ell_t : i\in Z_{\ge 0}\rangle$ that satisfy Kraft's Inequality.  In particular, we need to show that
 \[
