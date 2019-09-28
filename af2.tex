@@ -64,15 +64,15 @@
 
 \section{Introduction}
 
-A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no (consecutive) substring that is an anagram.  We say that a string is $\ge k$-anagram-free if it contains no substring of length at least $k$ that is an anagram.
+A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$. For convenience, we treat the empty string as an anagram.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no non-empty substring that is an anagram.  
+Consider the following algorithm for generating anagram-free strings over a $(c+1)$-letter alphabet $\Sigma=\{1,\ldots,c+1\}$:
 
-Consider the following algorithm for generating $\ge k$-anagram-free strings over an alphabet $\Sigma$ with $|\Sigma|=c$:
-
-\noindent$\textsc{Anagram-Free}(m, k, \Sigma)$:
+\noindent$\textsc{Anagram-Free}(m,\Sigma)$:
 \begin{algorithmic}[1]
+  \STATE{$s_0=1$}
   \STATE{$n\gets 0$}
   \FOR{$i\gets 1,\ldots,m$}
-    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma$}$}
+    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma\setminus\{s_n\}$}$}
     \STATE{$s_{n+1}\gets x_i$}
     \STATE{$n\gets n+1$}
     \STATE{Let $t$ be the largest integer such that $s_{n-2t+1},\ldots,s_n$ is an anagram}
@@ -97,22 +97,22 @@ We use the phrase ``encoding scheme'' loosely here.  In particular, we will make
 
 We say that a sequence of positive numbers $\langle \ell_t : t\in\Z_{\ge 0}\rangle$ satisfies \emph{Kraft's Inequality} if $\sum_{t=0}^{\infty} 2^{-\ell_t} \le 1$.  In this work, we will use codes for non-negative integers in which the ``codeword'' for each $t\in\Z_{\ge 0}$ has length $\ell_t$. Although non-intuitive, this can be rigorously justified so long as the codeword lengths satisfy Kraft's Inequality \cite[Section~7]{morin.mulzer.ea:encoding}.
 
-\subsection{The Deletion-Length Code}
-
-Critical to this work is a code for non-negative integers whose codeword lengths $\langle \ell_t:t\in\Z_{\ge0}\rangle$ are carefully balanced in order to satisfy Kraft's Inequality in addition to some other requirements.  In this code, the codeword for 0 has length
-\[
-     \ell_0 = \log\left(\frac{c}{c-1}\right)+\frac{\beta\log e}{c}
-       \approx \frac{(1+\beta)\log e}{c}
-\]
-for some $0 < \beta <1$ that will be discussed later.  For each $t\in \Z_{\ge0}$, we let $w_t=2^{\ell_t}$, so that Kraft's Inequality requires $\sum_{t=0}^\infty w_t^{-1} \le 1$.  We have
-\[
-   w_0^{-1} = 2^{-\ell_0} \approx 2^{-\tfrac{(1+\beta)\log e}{c}} = e^{-(1+\beta)/c} \approx 1-(1+\beta)/c \enspace .
-\]
-Therefore, in order to satisfy Kraft's Inequality, we must choose codeword lengths that satisfy
-\[
-   \sum_{t=1}^\infty 2^{-\ell_t} < 1-w_0^{-1} \approx (1+\beta)/c \enspace .
-\]
-Note that this implies that the codeword length $\ell_t$, for every $t\in\N$, must be quite large.  Indeed, satisfying Kraft's Inequality requires $\ell_t > \log c - \log(1+\beta)$.
+% \subsection{The Deletion-Length Code}
+% 
+% Critical to this work is a code for non-negative integers whose codeword lengths $\langle \ell_t:t\in\Z_{\ge0}\rangle$ are carefully balanced in order to satisfy Kraft's Inequality in addition to some other requirements.  In this code, the codeword for 0 has length
+% \[
+%      \ell_0 = \log\left(\frac{c}{c-1}\right)+\frac{\beta\log e}{c}
+%        \approx \frac{(1+\beta)\log e}{c}
+% \]
+% for some $0 < \beta <1$ that will be discussed later.  For each $t\in \Z_{\ge0}$, we let $w_t=2^{\ell_t}$, so that Kraft's Inequality requires $\sum_{t=0}^\infty w_t^{-1} \le 1$.  We have
+% \[
+%    w_0^{-1} = 2^{-\ell_0} \approx 2^{-\tfrac{(1+\beta)\log e}{c}} = e^{-(1+\beta)/c} \approx 1-(1+\beta)/c \enspace .
+% \]
+% Therefore, in order to satisfy Kraft's Inequality, we must choose codeword lengths that satisfy
+% \[
+%    \sum_{t=1}^\infty 2^{-\ell_t} < 1-w_0^{-1} \approx (1+\beta)/c \enspace .
+% \]
+% Note that this implies that the codeword length $\ell_t$, for every $t\in\N$, must be quite large.  Indeed, satisfying Kraft's Inequality requires $\ell_t > \log c - \log(1+\beta)$.
 
 % To begin with, we choose the codeword-length for $1$ to be
 % \[
@@ -136,7 +136,7 @@ Note that this implies that the codeword length $\ell_t$, for every $t\in\N$, mu
 
 Next we describe the encoding scheme.  To encode $c_1,\ldots,c_m$, we encode the following information:
 \begin{enumerate}
-  \item The string $s_1,\ldots,s_n$ returned by algorithm in Line~8. Since this string is anagram free, $s_{i+1}\neq s_{i}$ for any $i\in\{1,\ldots,n\}$, so this can be done using $\log(c) + (n-1)\log(c-1)$ bits.
+  \item The string $s_1,\ldots,s_n$ returned by algorithm in Line~8. This can be done in the obvious way, using $n\log(c)$ bits.
   \item The sequence $t_1,\ldots,t_m$ of deletion-lengths using $\sum_{i=1}^m \ell_{t_i}$ bits.
   \item A sequence $\xi_1,\ldots,\xi_m$ where each $\xi_i$ contains enough information to recover the $t_i$ values deleted from $s$ during iteration $i$.
 \end{enumerate}
@@ -146,13 +146,12 @@ The number of bits required for the third item is the subject of \secref{somethi
    |\xi_i| 
    \le \begin{cases}
      0 & \text{if $t_i = 0$} \\
-     t_i\log c + (t_i-1)\log(c-1) + (\beta/c)\log e - t_i(\alpha/c)\log e) - \ell_{t_i} 
-        & \text{otherwise} \\
+     t_i\log c - \alpha t_i\ell_0 - \ell_{t_i}  & \text{otherwise} \\
      % t_i(\log c - (\alpha/c)\log e) +(\beta/c)\log e - \ell_{t_i} 
         % & \text{otherwise}
    \end{cases}  \eqlabel{xi-i}
 \end{equation}
-for some $1 > \alpha > \beta > 0$.
+for some $\alpha > 1$.
 % Here is the intuition behind this choice.  Infortmation-theoretically, each iteration $i\in\{1,\ldots,m\}$ uses one random value $x_i$, so it should contribute at least $\log c$ bits to the length of the encoding.  In fact, each iteration will contribute $\log c + (\beta/c)\log e$ bits to the encoding.  Thus, we should think of $(\beta/c)\log e$ as an overhead cost per iteration so that the total overhead is $m(\beta/c)\log n$.  However, if $t_i>0$, then $(\alpha/c)t_i$ bits of this overhead are recovered.  Thus, $\sum_{i=1}^m t_i(\alpha/c)\log e = (m-n)(\alpha/c)\log e$ bits.  Thus, the total length of the encoding is
 % \[
 %     m\log c + m(\beta/c)\log e - (m-n)(\alpha/c)\log e < m\log c
@@ -164,27 +163,17 @@ for some $1 > \alpha > \beta > 0$.
 For each $t\in\N$, let $d_t$ denote the number of iterations $i\in\{1,\ldots,m\}$ for which $t_i=t$. 
 \begin{align*}
     |C| 
-    & = \log c + (n-1)\log(c-1) + d_0\ell_0 \\ 
-      & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (\beta/c)\log e + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
+    & = n\log c + d_0\ell_0 + \sum_{t=1}^m d_t\left(t\log c - \alpha t\ell_0\right) 
       \\
-    & = \log c + (n-1)\log(c-1) + d_0(\log(c/(c-1))+(\beta/c)\log e) \\ 
-      & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (\beta/c)\log e + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
-      \\
-    & = \log c + (n-1)\log(c-1) + m(\beta/c)\log e + d_0\log(c/(c-1)) \\ 
-        & \qquad {} + \sum_{t=1}^m d_t\left(t\log c + (t-1)\log(c-1) - t(\alpha/c)\log e\right) 
-      \\
-    & = \log c + (n-1)\log(c-1) + m\log c + m(\beta/c)\log e - d_0\log(c-1) \\ 
-        & \qquad {} + \sum_{t=1}^m d_t\left((t-1)\log(c-1) - t(\alpha/c)\log e\right) 
-      \\
-    & = \log c + (n-1)\log(c-1) + m\log c + m(\beta/c)\log e - n\log(c-1) - \sum_{t=1}^m d_t t(\alpha/c)\log e 
+    & \le n\log c + m\ell_0 + \sum_{t=1}^m d_t\left(t\log c - \alpha t\ell_0\right) 
         \\
-    & = \log (c/(c-1)) + m\log c + m(\beta/c)\log e - \sum_{t=1}^m d_t t(\alpha/c)\log e 
-        \\
-    & = \log (c/(c-1)) + m\log c + m(\beta/c)\log e - (m-n)(\alpha/c)\log e 
-      \\
-    & < m\log c - k
+    & \le n\log c + m\ell_0 + (m-n)\log c - (m-n)\alpha\ell_0 \\
+    & \le m\log c + m(1-\alpha)\ell_0 + \alpha n\ell_0 \\
+    & \le m\log c - k
 \end{align*}
-when $n \le BLAH(k)$.  This shows that the probability that the algorithm fails to produce an output of length at least $BLAH$ is at most $2^{-k}$.
+when
+\[   n \le \frac{(\alpha-1)m - k}{\alpha} \enspace . \]
+This shows that the probability that the algorithm fails to produce an output of length at least $\frac{(\alpha-1)m - k}{\alpha}$ is at most $2^{-k}$.
 
 It still remains to describe the codeword lengths $\langle \ell_t:i\in \N\rangle$ and encodings of $\xi_i$ satisfying \eqref{xi-i}, and to show that these codeword lengths satisfy Kraft's Inequality.  Before doing so, we first review how the encoding can be used to recover $x_1,\ldots,x_m$.
 
@@ -211,8 +200,56 @@ We now describe the rest of the code.  For an anagram-free string $s=s_1,\ldots,
 \]
 Observe that the length of the codeword needed for $\xi_i$ is at most $\log a_{t_i}$.  Therefore, \eqref{xi-i} is satisfied by choosing, for each $t\in \N$,
 \[
-   \ell_t = t\log c + (t-1)\log(c-1) + (\beta/c)\log e - t(\alpha/c)\log e - \log a_t   \enspace .
+   \ell_t = t\log c -\alpha t\ell_0 -  \log a_t   \enspace .
 \]
+For now, think of $\ell_0$ as a (small) constant greater than 0.  We begin by giving some obvious bounds on $a_t$.
+
+\section{The Small Regime}
+
+For $t \le c$, the easy bound for $a_t$ suffices:
+\[
+    a_t \le t! \le \left(\frac{t}{e}\right)^t\sqrt{2\pi t}
+\]
+so
+\[  \log(a_t) \le t\log t - t\log e + (\tfrac{1}{2})\log(2\pi t) \]
+The case $t=1$ is particularly important, because $a_1=1$.  Thus,
+\[  \ell_1 = \log c - \ell_0 \]
+
+
+\section{The Medium Regime}
+
+For $1\le t\le 2c$, we can use a multinomial bound for $a_t$:
+\[
+  a_t \le \frac{t!}{\ceil{t/c}^{t\bmod c}\left(\floor{t/c}!\right)^c}
+       = \frac{t!}{2^{t-c}}
+      \le 2^{c-t}\left(\frac{t}{e}\right)^t\sqrt{2\pi t} \enspace .
+\]
+In this case,
+\[ \log(a_t) \le t\log t - t\log e - t + c + \log(2\pi t) \]
+
+\section{The Large Regime}
+
+As $t$ becomes much larger, the multinomial bound becomes weaker and has the form
+\[
+  a_t \le \frac{c^t}{(t/c)^{c/2}}
+\]
+This bound is roughly correct in the sense that, for a random string of length $2t$, the probability that the string is an anagram is roughtly $(c/t)^{c/2}$.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 All that remains is to show that this leads to a sequence of codeword lengths $\langle \ell_t : i\in Z_{\ge 0}\rangle$ that satisfy Kraft's Inequality.  In particular, we need to show that
 \[
   \sum_{t=1}^\infty 2^{-\ell_t} = \sum_{t=1}^\infty 2^{-\ell_t} \le 1-e^{-\beta/c} \approx \beta\log c/c \enspace .
