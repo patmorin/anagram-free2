@@ -64,15 +64,15 @@
 
 \section{Introduction}
 
-A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no (consecutive) substring that is an anagram.  We say that a string is $\ge k$-anagram-free if it contains no substring of length at least $k$ that is an anagram.
+A string $s_1,\ldots,s_{2k}$ is an \emph{anagram} if $s_1,\ldots,s_k$ is a permutation of $s_{k+1},\ldots,s_{2k}$. For convenience, we treat the empty string as an anagram.  A string $s_1,\ldots,s_n$ is \emph{anagram-free} if it contains no non-empty substring that is an anagram.  
+Consider the following algorithm for generating anagram-free strings over a $(c+1)$-letter alphabet $\Sigma=\{1,\ldots,c+1\}$:
 
-Consider the following algorithm for generating $\ge k$-anagram-free strings over an alphabet $\Sigma$ with $|\Sigma|=c$:
-
-\noindent$\textsc{Anagram-Free}(m, k, \Sigma)$:
+\noindent$\textsc{Anagram-Free}(m,\Sigma)$:
 \begin{algorithmic}[1]
+  \STATE{$s_0=1$}
   \STATE{$n\gets 0$}
   \FOR{$i\gets 1,\ldots,m$}
-    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma$}$}
+    \STATE{$x_i \gets \text{a uniformly random element in $\Sigma\setminus\{s_n\}$}$}
     \STATE{$s_{n+1}\gets x_i$}
     \STATE{$n\gets n+1$}
     \STATE{Let $t$ be the largest integer such that $s_{n-2t+1},\ldots,s_n$ is an anagram}
@@ -202,6 +202,54 @@ Observe that the length of the codeword needed for $\xi_i$ is at most $\log a_{t
 \[
    \ell_t = t\log c + (\beta/c)\log e - t(\alpha/c)\log e - \log a_t   \enspace .
 \]
+For now, think of $\ell_0$ as a (small) constant greater than 0.  We begin by giving some obvious bounds on $a_t$.
+
+\section{The Small Regime}
+
+For $t \le c$, the easy bound for $a_t$ suffices:
+\[
+    a_t \le t! \le \left(\frac{t}{e}\right)^t\sqrt{2\pi t}
+\]
+so
+\[  \log(a_t) \le t\log t - t\log e + (\tfrac{1}{2})\log(2\pi t) \]
+The case $t=1$ is particularly important, because $a_1=1$.  Thus,
+\[  \ell_1 = \log c - \ell_0 \]
+
+
+\section{The Medium Regime}
+
+For $1\le t\le 2c$, we can use a multinomial bound for $a_t$:
+\[
+  a_t \le \frac{t!}{\ceil{t/c}^{t\bmod c}\left(\floor{t/c}!\right)^c}
+       = \frac{t!}{2^{t-c}}
+      \le 2^{c-t}\left(\frac{t}{e}\right)^t\sqrt{2\pi t} \enspace .
+\]
+In this case,
+\[ \log(a_t) \le t\log t - t\log e - t + c + \log(2\pi t) \]
+
+\section{The Large Regime}
+
+As $t$ becomes much larger, the multinomial bound becomes weaker and has the form
+\[
+  a_t \le \frac{c^t}{(t/c)^{c/2}}
+\]
+This bound is roughly correct in the sense that, for a random string of length $2t$, the probability that the string is an anagram is roughtly $(c/t)^{c/2}$.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 All that remains is to show that this leads to a sequence of codeword lengths $\langle \ell_t : i\in Z_{\ge 0}\rangle$ that satisfy Kraft's Inequality.  In particular, we need to show that
 \[
   \sum_{t=1}^\infty 2^{-\ell_t} \le \beta/c - (\beta/c)^2 \enspace .
