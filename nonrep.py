@@ -33,12 +33,13 @@ if __name__ == "__main__":
         sys.exit(-1)
     print("k = {}, |sigma| = {}".format(k, c))
     sigma = "abcdefghijklmnopqrstuvwxyz"[:c]
-    worst = Fraction(0, 1)
-    worst_example = sigma[0]
-    for s in gen_nonrep(sigma, "", k):
+    worst = Fraction(-1, 1)
+    for s in gen_nonrep(sigma, "ab", k-2):
         c = 0
         b = 0
         for z in gen_nonrep(sigma, s, k-1):
+            print("\r{}".format(z), end='')
+            sys.stdout.flush()
             c += 1
             if z[-k+1:] == s[:-1]:
                 b += 1
@@ -48,4 +49,5 @@ if __name__ == "__main__":
         if ratio > worst:
             worst = ratio
             worst_example = s
+    print()
     print(worst_example, worst, worst/len(sigma))
